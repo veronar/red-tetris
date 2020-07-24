@@ -5,8 +5,8 @@
   "license": "MIT",
   "scripts": {
     "eslint": "eslint src",
-    "client-dist": "NODE_ENV=production webpack --progress --colors",
-    "client-dev": "webpack-dev-server --colors --hot --inline --host 0.0.0.0 --port 8080",
+    "client-dist": "npx react-scripts build",
+    "client-dev": "npx react-scripts start",
     "srv-dev": "DEBUG=tetris:* babel-watch -w src src/server/main.js",
     "srv-dist": "DEBUG=tetris:* babel src --out-dir dist",
     "test": "mocha --require babel-core/register --reporter spec",
@@ -16,10 +16,12 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-redux": "^7.2.0",
+    "react-scripts": "^3.4.1",
     "redux": "^4.0.5",
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.3.0",
-    "socket.io": "^2.3.0"
+    "socket.io": "^2.3.0",
+    "yarn": "^1.22.4"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.5",
@@ -51,17 +53,11 @@
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "chai-equal-jsx": "^1.0.9",
-    "eslint": "^7.5.0",
     "eslint-plugin-babel": "^5.3.1",
     "eslint-plugin-react": "^7.20.3",
     "lodash": "^4.17.19",
     "mocha": "^8.0.1",
-    "nyc": "^15.1.0",
-    "webpack": "^4.43.0",
-    "webpack-cli": "^3.3.12",
-    "webpack-dev-middleware": "^3.7.2",
-    "webpack-dev-server": "^3.11.0",
-    "webpack-hot-middleware": "^2.25.0"
+    "nyc": "^15.1.0"
   },
   "nyc": {
     "exclude": [
@@ -72,6 +68,18 @@
     "presets": [
       "@babel/preset-env",
       "@babel/react"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
     ]
   }
 }

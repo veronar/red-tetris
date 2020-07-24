@@ -2,12 +2,12 @@ import React from 'react'
 import ReactDom from 'react-dom'
 import {createLogger} from 'redux-logger'
 import thunk from 'redux-thunk'
-import { createStore, applyMiddleware } from 'redux'
+import { createStore, applyMiddleware, compose } from 'redux'
 import { Provider } from 'react-redux'                                                                                                                                                    
-import {storeStateMiddleWare} from './middleware/storeStateMiddleWare'
-import reducer from './reducers'
-import App from './containers/app'
-import {alert} from './actions/alert'
+import {storeStateMiddleWare} from './client/middleware/storeStateMiddleWare'
+import reducer from './client/reducers'
+import App from './client/containers/app'
+import {alert} from './client/actions/alert'
 const composeEnhancer = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const initialState = {}
 
