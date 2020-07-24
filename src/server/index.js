@@ -1,5 +1,5 @@
-import fs  from 'fs'
-import debug from 'debug'
+const fs  = require('fs')
+const debug = require('debug')
 
 const logerror = debug('tetris:error')
   , loginfo = debug('tetris:info')
@@ -7,7 +7,7 @@ const logerror = debug('tetris:error')
 const initApp = (app, params, cb) => {
   const {host, port} = params
   const handler = (req, res) => {
-    const file = req.url === '/bundle.js' ? '/../../build/bundle.js' : '/../../index.html'
+    const file = req.url === '/bundle.js' ? '/../../build/bundle.js' : '/../../public/index.html'
     fs.readFile(__dirname + file, (err, data) => {
       if (err) {
         logerror(err)
@@ -38,7 +38,7 @@ const initEngine = io => {
   })
 }
 
-export function create(params){
+module.exports = create = (params) =>{
   const promise = new Promise( (resolve, reject) => {
     const app = require('http').createServer()
     initApp(app, params, () =>{

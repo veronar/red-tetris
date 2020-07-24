@@ -8,12 +8,12 @@
     "eslint": "eslint src",
     "prod-client": "npx react-scripts build",
     "start-client": "npx react-scripts start",
-    "start-srv": "DEBUG=tetris:* babel-watch -w src src/server/main.js",
-    "prod-srv": "DEBUG=tetris:* babel src --out-dir dist",
-    "test": "mocha --require babel-core/register --reporter spec",
-    "coverage": "NODE_ENV=test nyc --include src --all -r text -r lcov -r text --require babel-core/register mocha "
+    "start-srv": "npx nodemon src/server/main.js",
+    "test": "react-scripts test",
+    "coverage": "npm test -- --coverage"
   },
   "dependencies": {
+    "nodemon": "^2.0.4",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-redux": "^7.2.0",
@@ -22,41 +22,15 @@
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.3.0",
     "socket.io": "^2.3.0",
+    "socket.io-client": "^2.3.0",
     "yarn": "^1.22.4"
   },
   "devDependencies": {
-    "@babel/cli": "^7.10.5",
-    "@babel/core": "^7.10.5",
-    "@babel/plugin-proposal-class-properties": "^7.0.0",
-    "@babel/plugin-proposal-decorators": "^7.0.0",
-    "@babel/plugin-proposal-do-expressions": "^7.0.0",
-    "@babel/plugin-proposal-export-default-from": "^7.0.0",
-    "@babel/plugin-proposal-export-namespace-from": "^7.0.0",
-    "@babel/plugin-proposal-function-bind": "^7.0.0",
-    "@babel/plugin-proposal-function-sent": "^7.0.0",
-    "@babel/plugin-proposal-json-strings": "^7.0.0",
-    "@babel/plugin-proposal-logical-assignment-operators": "^7.0.0",
-    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.0.0",
-    "@babel/plugin-proposal-numeric-separator": "^7.0.0",
-    "@babel/plugin-proposal-optional-chaining": "^7.0.0",
-    "@babel/plugin-proposal-pipeline-operator": "^7.0.0",
-    "@babel/plugin-proposal-throw-expressions": "^7.0.0",
-    "@babel/plugin-syntax-dynamic-import": "^7.0.0",
-    "@babel/plugin-syntax-import-meta": "^7.0.0",
-    "@babel/preset-env": "^7.10.4",
-    "@babel/preset-es2015": "^7.0.0-beta.53",
-    "@babel/preset-react": "^7.10.4",
-    "babel-eslint": "^10.1.0",
-    "babel-loader": "^8.1.0",
-    "babel-plugin-__coverage__": "^11.0.0",
-    "babel-watch": "^7.0.0",
     "braces": "^3.0.2",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "chai-equal-jsx": "^1.0.9",
     "concurrently": "^5.2.0",
-    "eslint-plugin-babel": "^5.3.1",
-    "eslint-plugin-react": "^7.20.3",
     "lodash": "^4.17.19",
     "mocha": "^8.0.1",
     "nyc": "^15.1.0"
@@ -64,12 +38,6 @@
   "nyc": {
     "exclude": [
       "build"
-    ]
-  },
-  "babel": {
-    "presets": [
-      "@babel/preset-env",
-      "@babel/react"
     ]
   },
   "browserslist": {
