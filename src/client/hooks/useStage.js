@@ -24,11 +24,16 @@ export const useStage = (player, resetPlayer) => {
 				});
 			});
 
+			// then check if collided
+			if (player.collided) {
+				resetPlayer();
+			}
+
 			return newStage;
 		};
 
 		setStage((prev) => updateStage(prev));
-	}, [player]);
+	}, [player, resetPlayer]);
 
 	return [stage, setStage];
 };
