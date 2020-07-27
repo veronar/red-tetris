@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux'
 const App = () => {
   const message = useSelector(state => state.message) 
   return (
-    <span>{message}</span>
+  <span>{message}</span>
   )
 }
 export default(App)
