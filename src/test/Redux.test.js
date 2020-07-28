@@ -16,4 +16,6 @@ describe("testing reducers", () => {
   expect(result).toEqual({ message: "yes" });
   result = reducer({}, {});
   expect(result).toEqual({});
+  result = reducer();
+  expect(result).toBeFalsy()
 });

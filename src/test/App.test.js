@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import ReactDOM from "react-dom";
 import App from "../client/containers/App";
 import * as redux from "react-redux";
 import Enzyme, { shallow, render, mount } from "enzyme";
