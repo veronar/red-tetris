@@ -9,6 +9,7 @@ import * as components from '../client/components/basicComponents';
 import * as propComponents from '../client/components/propComponents';
 
 
+
 Enzyme.configure({ adapter: new Adapter() })
 it('renders correctly enzyme', () => {
 	const spy = jest.spyOn(redux, 'useSelector')
