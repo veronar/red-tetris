@@ -16,6 +16,7 @@ it('renders correctly enzyme', () => {
 	const wrapper = mount(<App />)
 	expect(toJson(wrapper)).toMatchSnapshot();
   });
+  
   Object.keys(components).forEach(componentName => {
 	const Component = components[componentName];
 	describe(`Component: ${componentName}`, () => {
@@ -25,6 +26,7 @@ it('renders correctly enzyme', () => {
 	  });
 	});
   }); 
+
   Object.keys(propComponents).forEach(componentName => {
 	let Component = propComponents[componentName];
 	Component.propsToTest.map((prop) => {

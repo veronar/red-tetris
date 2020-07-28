@@ -33,12 +33,8 @@
   },
   "devDependencies": {
     "braces": "^3.0.2",
-    "chai": "^4.2.0",
-    "chai-as-promised": "^7.1.1",
-    "chai-equal-jsx": "^1.0.9",
     "concurrently": "^5.2.0",
     "lodash": "^4.17.19",
-    "mocha": "^8.0.1",
     "nyc": "^15.1.0"
   },
   "nyc": {
