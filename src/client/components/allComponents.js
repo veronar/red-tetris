@@ -15,7 +15,7 @@ import StyledStartButton from './styles/StyledStartButton';
 import StyledTetris from './styles/StyledTetris';
 
 export {
-	Test,
+	// Test,
 	Cell,
 	Display,
 	Stage,

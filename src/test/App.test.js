@@ -16,13 +16,13 @@ it('renders correctly enzyme', () => {
 	const wrapper = mount(<App />)
 	expect(toJson(wrapper)).toMatchSnapshot();
   });
-  Object.keys(components).forEach(componentName => {
-	const Component = components[componentName];
-	describe(`Component: ${componentName}`, () => {
-	  test(`${componentName} renders with default props`, () => {
-		const wrapper = shallow(<Component />);
-		expect(wrapper).toMatchSnapshot();
-	  });
-	});
-  }); 
+//   Object.keys(components).forEach(componentName => {
+// 	const Component = components[componentName];
+// 	describe(`Component: ${componentName}`, () => {
+// 	  test(`${componentName} renders with default props`, () => {
+// 		const wrapper = shallow(<Component />);
+// 		expect(wrapper).toMatchSnapshot();
+// 	  });
+// 	});
+//   }); 
   

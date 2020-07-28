@@ -5,7 +5,7 @@ import Tetris from '../components/Tetris';
 const App = () => {
 	const message = useSelector((state) => state.message);
 	var msg = (
-		<div classname="App">
+		<div className="App">
 			<Tetris />
 		</div>
 	);
