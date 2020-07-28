@@ -942,7 +942,6 @@ describe("Testing Tetris hooks", () => {
 			return null
 		}
 		mount(<UsePlayerWrapper />)
-		console.log(player)
 		function StageHookWrapper() {
 			stage = useStage(player[0], player[3]);
 			return null
@@ -957,7 +956,7 @@ describe("Testing Tetris hooks", () => {
 		act(() => {
 			stage[1](newStage)
 		})
-		console.log(results);
+		
 		expect(score).toEqual(0)
 
 	})
