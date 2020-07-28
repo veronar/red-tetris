@@ -1,4 +1,4 @@
-import Test from './test';
+import {Test} from './test';
 
 // Components
 import Cell from './Cell';

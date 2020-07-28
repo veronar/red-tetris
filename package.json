@@ -10,7 +10,7 @@
     "start-client": "npx react-scripts start",
     "start-srv": "npx nodemon src/server/index.js",
     "test": "react-scripts test",
-    "coverage": "npm test -- --coverage"
+    "coverage": "npm test -- --coverage --watchAll=false -u"
   },
   "dependencies": {
     "enzyme": "^3.11.0",
