@@ -14,4 +14,9 @@ export const StyledDisplay = styled.div`
 	background: #000;
 	font-family: Pixel, Arial, Helvetica, sans-serif;
 	font-size: 0.8rem;
-`;
+`
+StyledDisplay["propsToTest"] = [
+	{gameOver: true},
+	{gameOver: false}
+]
+;
