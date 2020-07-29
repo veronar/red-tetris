@@ -25,7 +25,7 @@ describe("Testing Tetris hooks", () => {
 	let gameStatus;
 	let results;
 	let result;
-	beforeAll(() => {
+	beforeEach(() => {
 		result = renderHook(usePlayer).result;
 		act(() => {
 			result.current.resetPlayer();
@@ -34,8 +34,8 @@ describe("Testing Tetris hooks", () => {
 		result = renderHook(() => useStage(player.player, player.resetPlayer))
 			.result;
 		stage = result.current;
-		result = renderHook(() => useGameStatus(stage.rowsCleared));
-		gameStatus = result.current;
+		// result = renderHook(() => useGameStatus(stage.rowsCleared));
+		// gameStatus = result.current;
 	});
 
 	describe("test usePlayer", () => {
@@ -70,7 +70,7 @@ describe("Testing Tetris hooks", () => {
 			expect(checkCollisionSpy).toHaveBeenCalled();
 			expect(result.current.player.tetromino).toEqual(initPlayer.tetromino);
 		});
-		it("should not rotate player", () => {
+		it("should move player", () => {
 			const { result } = renderHook(usePlayer);
 			let initPlayer;
 			act(() => {
@@ -87,23 +87,41 @@ describe("Testing Tetris hooks", () => {
 		});
 	});
 
-	// describe("test useStage", () => {
+	describe("test useStage", () => {
+		it("should do something", () => {
+			const playerStage = renderHook(usePlayer).result
+			const { result, rerender } = renderHook(() => useStage(playerStage.current.player, playerStage.current.resetPlayer));
+			const resetPl = jest.spyOn(playerStage.current, "resetPlayer")
+				playerStage.current.player.pos = {x:5, y:2};
+				playerStage.current.player.collided = true;
+				rerender();				
+			expect(resetPl).toHaveBeenCalledTimes(1);
+		});
+	});
+	// describe("test useGameStatus", () => {
 	// 	it("should do something", () => {
-	// 		const playerStage = renderHook(usePlayer).result
-	// 		const { result } = renderHook(() => useStage(playerStage.current.player, playerStage.current.resetPlayer));
-	// 		const resetPl = jest.spyOn(playerStage.current, "resetPlayer")
-	// 		console.log (result.current.rowsCleared);
+	// 		let rowsCleared = 0;
+	// 		const {result, rerender} = renderHook(() => useGameStatus(), {initialProps: {rowsCleared: 3}});
+	// 		console.log(result.current)
 	// 		act(() => {
-	// 			playerStage.current.resetPlayer();
+	// 			// result.current.setLevel(1);
+	// 			// result.current.setScore(40);
+	// 			rowsCleared = 1;
+	// 			rerender();
+				
+	// 			// rerender()
 	// 		})
-	// 		act(() => {
-	// 			playerStage.current.updatePlayerPos({x:0, y:0, collided: true})
-	// 		})
-	// 		console.log (result.current.rowsCleared);
-	// 		expect(resetPl).toHaveBeenCalledTimes(2)
-	// 		// act(() =>{
-
-	// 		// })
+	// 		console.log(result.current)
 	// 	});
 	// });
+	describe("test useInterval", () => {
+		it("should do something", () => {
+			const stub = jest.fn()
+			renderHook(() => useInterval(stub, 0));
+			setTimeout(() => {
+				expect(stub).toHaveBeenCalled()
+			  }, 50);
+			
+		});
+	});
 });
