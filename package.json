@@ -13,10 +13,12 @@
     "coverage": "npm test -- --coverage --watchAll=false -u"
   },
   "dependencies": {
+    "@material-ui/core": "^4.11.0",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.2",
     "enzyme-to-json": "^3.5.0",
     "express": "^4.17.1",
+    "fontsource-roboto": "^2.2.6",
     "nodemon": "^2.0.4",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
