@@ -10,7 +10,7 @@ import { useInterval } from '../hooks/useInterval';
 import { usePlayer } from '../hooks/usePlayer';
 import { useStage } from '../hooks/useStage';
 import { useGameStatus } from '../hooks/useGameStatus';
-
+import {movePlayer, dropPlayer, drop, playerRotation} from './movePlayer';
 // Components
 import Stage from './Stage';
 import Display from './Display';
@@ -28,16 +28,11 @@ const Tetris = () => {
 		rowsCleared
 	);
 
-	// console.log('re-render');
 
-	const movePlayer = (dir) => {
-		if (!checkCollision(player, stage, { x: dir, y: 0 })) {
-			updatePlayerPos({ x: dir, y: 0 });
-		}
-	};
+
+	
 
 	const startGame = () => {
-		console.log('test');
 		// Reset everything
 		setStage(createStage());
 		setDropTime(1000);
@@ -48,26 +43,7 @@ const Tetris = () => {
 		setLevel(0);
 	};
 
-	const drop = () => {
-		// Increase level when player has cleared 10 rows
-		if (rows > (level + 1) * 10) {
-			setLevel((prev) => prev + 1);
-			// Also increase the speed
-			setDropTime(1000 / (level + 1) + 200);
-		}
-
-		if (!checkCollision(player, stage, { x: 0, y: 1 })) {
-			updatePlayerPos({ x: 0, y: 1, collided: false });
-		} else {
-			// Game Over
-			if (player.pos.y < 1) {
-				console.log('GAME OVER!');
-				setGameOver(true);
-				setDropTime(null);
-			}
-			updatePlayerPos({ x: 0, y: 0, collided: true });
-		}
-	};
+	
 
 	const keyUp = ({ keyCode }) => {
 		if (!gameOver) {
@@ -78,11 +54,7 @@ const Tetris = () => {
 		}
 	};
 
-	const dropPlayer = () => {
-		console.log('Interval off');
-		setDropTime(null);
-		drop();
-	};
+
 
 	const move = ({ keyCode }) => {
 		if (!gameOver) {
@@ -92,19 +64,19 @@ const Tetris = () => {
 			// 38 = up arrow, rotate
 
 			if (keyCode === 37) {
-				movePlayer(-1);
+				movePlayer(-1, updatePlayerPos, player, stage);
 			} else if (keyCode === 39) {
-				movePlayer(1);
+				movePlayer(1, updatePlayerPos, player, stage);
 			} else if (keyCode === 40) {
-				dropPlayer();
+				dropPlayer(setDropTime, drop, rows, level, player, stage, setLevel, updatePlayerPos, setGameOver);
 			} else if (keyCode === 38) {
-				playerRotate(stage, 1);
+				playerRotation(stage, 1, playerRotate);
 			}
 		}
 	};
 
 	useInterval(() => {
-		drop();
+		drop(rows, level, player, stage, setLevel, setDropTime, updatePlayerPos, setGameOver);
 	}, dropTime);
 
 	return (
