@@ -1,127 +1,42 @@
-import * as gameHelpers from "../client/helpers/gameHelpers";
+
+import Enzyme, { shallow, render, mount} from "enzyme";
 import React, { Component } from "react";
-import ReactDOM from "react-dom";
-import App from "../client/containers/App";
-import * as redux from "react-redux";
-import Enzyme, { shallow, render, mount } from "enzyme";
-import { renderHook, act } from "@testing-library/react-hooks";
-// import { act } from 'react-dom/test-utils';
 import toJson from "enzyme-to-json";
 import Adapter from "enzyme-adapter-react-16";
-import * as propComponents from "../client/components/propComponents";
-import * as tetrominos from "../client/helpers/tetrominos";
-import { usePlayer } from "../client/hooks/usePlayer";
-import { useStage } from "../client/hooks/useStage";
+import * as gameHelpers from "../client/helpers/gameHelpers";
 import Tetris from "../client/components/Tetris";
-import { useInterval } from "../client/hooks/useInterval";
-import { useGameStatus } from "../client/hooks/useGameStatus";
+
+import {act} from 'react-dom/test-utils';
+
+
 Enzyme.configure({ adapter: new Adapter() });
-describe("Testing Tetris hooks", () => {
-	const clearStage = Array.from(Array(gameHelpers.STAGE_HEIGHT), () =>
-		new Array(gameHelpers.STAGE_WIDTH).fill([0, "clear"])
-	);
-	let player;
-	let stage;
-	let gameStatus;
-	let results;
-	let result;
-	beforeEach(() => {
-		result = renderHook(usePlayer).result;
-		act(() => {
-			result.current.resetPlayer();
-		});
-		player = result.current;
-		result = renderHook(() => useStage(player.player, player.resetPlayer))
-			.result;
-		stage = result.current;
-		// result = renderHook(() => useGameStatus(stage.rowsCleared));
-		// gameStatus = result.current;
-	});
-
-	describe("test usePlayer", () => {
-		it("should rotate player", () => {
-			const { result } = renderHook(usePlayer);
-
-			const checkCollisionSpy = jest
-				.spyOn(tetrominos, "randomTetromino")
-				.mockImplementation(() => {
-					return tetrominos.TETROMINOS["J"];
-				});
-			act(() => {
-				result.current.resetPlayer();
-			});
-			let initPlayer = { ...result.current.player };
-			act(() => {
-				result.current.playerRotate(stage.stage, 1);
-			});
-			expect(result.current.player.tetromino).not.toEqual(initPlayer.tetromino);
-		});
-		it("should not rotate player", () => {
-			const { result } = renderHook(usePlayer);
-			const checkCollisionSpy = jest
-				.spyOn(gameHelpers, "checkCollision")
-				.mockImplementation(() => {
-					return true;
-				});
-			let initPlayer = { ...result.current.player };
-			act(() => {
-				result.current.playerRotate(stage.stage, 1);
-			});
-			expect(checkCollisionSpy).toHaveBeenCalled();
-			expect(result.current.player.tetromino).toEqual(initPlayer.tetromino);
-		});
-		it("should move player", () => {
-			const { result } = renderHook(usePlayer);
-			let initPlayer;
-			act(() => {
-				result.current.resetPlayer();
-			});
-			initPlayer = { ...result.current.player };
-			act(() => {
-				result.current.updatePlayerPos({ x: 0, y: 0, collided: true });
-			});
-			initPlayer.pos.x += 0;
-			initPlayer.pos.y += 0;
-			initPlayer.collided = true;
-			expect(initPlayer).toEqual(result.current.player);
-		});
-	});
-
-	describe("test useStage", () => {
-		it("should do something", () => {
-			const playerStage = renderHook(usePlayer).result
-			const { result, rerender } = renderHook(() => useStage(playerStage.current.player, playerStage.current.resetPlayer));
-			const resetPl = jest.spyOn(playerStage.current, "resetPlayer")
-				playerStage.current.player.pos = {x:5, y:2};
-				playerStage.current.player.collided = true;
-				rerender();				
-			expect(resetPl).toHaveBeenCalledTimes(1);
-		});
-	});
-	// describe("test useGameStatus", () => {
-	// 	it("should do something", () => {
-	// 		let rowsCleared = 0;
-	// 		const {result, rerender} = renderHook(() => useGameStatus(), {initialProps: {rowsCleared: 3}});
-	// 		console.log(result.current)
-	// 		act(() => {
-	// 			// result.current.setLevel(1);
-	// 			// result.current.setScore(40);
-	// 			rowsCleared = 1;
-	// 			rerender();
-				
-	// 			// rerender()
-	// 		})
-	// 		console.log(result.current)
-	// 	});
-	// });
-	describe("test useInterval", () => {
-		it("should do something", () => {
-			const stub = jest.fn()
-			renderHook(() => useInterval(stub, 0));
-			setTimeout(() => {
-				expect(stub).toHaveBeenCalled()
-			  }, 50);
-			
-		});
-	});
-});
+describe("test tetris", () => {
+	it("should do something", () => {
+		jest.useFakeTimers();
+      const createStageSpy = jest.spyOn(gameHelpers, "createStage")
+	  const wrapper = mount(<Tetris />);
+	  wrapper.find("#startButton button").simulate("click");
+	  expect(createStageSpy).toHaveBeenCalled()
+	  const scoreDisplay = wrapper.find("#scoreDisplay div");
+	  const rowDisplay = wrapper.find("#rowDisplay div");
+	  const levelDisplay = wrapper.find("#levelDisplay div");
+	  expect(scoreDisplay.text()).toEqual("Score: 0")
+	  expect(rowDisplay.text()).toEqual("Rows: 0")
+	  expect(levelDisplay.text()).toEqual("Level: 0")
+	  wrapper.simulate("keydown", {keycode: 37})
+	  wrapper.simulate("keyup", {keycode: 37})
+	  wrapper.simulate("keydown", {keycode: 38})
+	  wrapper.simulate("keyup", {keycode: 38})
+	  wrapper.simulate("keydown", {keycode: 39})
+	  wrapper.simulate("keyup", {keycode: 39})
+	  wrapper.simulate("keydown", {keycode: 40})
+	  act(() =>{
+		  jest.advanceTimersByTime(100000);
+		  wrapper.update()
+		})
+		wrapper.simulate("keyup", {keycode: 40})
+		const gameOverDisplay = wrapper.find("#gameOverDisplay div");
+		expect(gameOverDisplay.text()).toEqual("Game Over")
+	
+    });
+  });

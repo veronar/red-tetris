@@ -1,9 +1,5 @@
 import * as gameHelpers from "../client/helpers/gameHelpers";
-import Enzyme, { shallow, render, mount } from "enzyme";
-import Adapter from "enzyme-adapter-react-16";
 import * as tetrominos from "../client/helpers/tetrominos";
-
-Enzyme.configure({ adapter: new Adapter() });
 
 describe("gamehelpers", () => {
   const clearStage = Array.from(Array(gameHelpers.STAGE_HEIGHT), () =>
