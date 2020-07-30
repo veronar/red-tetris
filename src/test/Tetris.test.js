@@ -17,9 +17,9 @@ describe("test tetris", () => {
 	  const wrapper = mount(<Tetris />);
 	  wrapper.find("#startButton button").simulate("click");
 	  expect(createStageSpy).toHaveBeenCalled()
-	  const scoreDisplay = wrapper.find("#scoreDisplay div");
-	  const rowDisplay = wrapper.find("#rowDisplay div");
-	  const levelDisplay = wrapper.find("#levelDisplay div");
+	  const scoreDisplay = wrapper.find("#scoreDisplay p");
+	  const rowDisplay = wrapper.find("#rowDisplay p");
+	  const levelDisplay = wrapper.find("#levelDisplay p");
 	  expect(scoreDisplay.text()).toEqual("Score: 0")
 	  expect(rowDisplay.text()).toEqual("Rows: 0")
 	  expect(levelDisplay.text()).toEqual("Level: 0")
@@ -35,7 +35,7 @@ describe("test tetris", () => {
 		  wrapper.update()
 		})
 		wrapper.simulate("keyup", {keycode: 40})
-		const gameOverDisplay = wrapper.find("#gameOverDisplay div");
+		const gameOverDisplay = wrapper.find("#gameOverDisplay p");
 		expect(gameOverDisplay.text()).toEqual("Game Over")
 	
     });
