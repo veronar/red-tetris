@@ -10,9 +10,9 @@ exports.makeSocket = io => {
 		socket.on('join', (room) => {
 			socket.join(room)
 			// Below give amount of users in current room
-			// io.of('/').in(room).clients(function (error, clients) {
-			// 	console.log(clients.length);
-			// });
+			io.of('/').in(room).clients(function (error, clients) {
+				console.log(clients.length);
+			});
 		})
 		socket.on('test', () => {
 			socket.to(Object.keys(socket.rooms)[0]).emit('idk')
