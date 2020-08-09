@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
 import { createStage, checkCollision } from '../helpers/gameHelpers';
+import userSocket from "../helpers/socket";
 
 // Styled Component
 import { StyledTetrisWrapper, StyledTetris } from './styles/StyledTetris';
@@ -10,11 +11,13 @@ import { useInterval } from '../hooks/useInterval';
 import { usePlayer } from '../hooks/usePlayer';
 import { useStage } from '../hooks/useStage';
 import { useGameStatus } from '../hooks/useGameStatus';
-import {movePlayer, dropPlayer, drop, playerRotation} from './movePlayer';
+import { movePlayer, dropPlayer, drop, playerRotation } from './movePlayer';
 // Components
 import Stage from './Stage';
 import Display from './Display';
 import StartButton from './StartButton';
+
+let mainSocket = null
 
 const Tetris = () => {
 	// console.log(createStage());
@@ -22,15 +25,11 @@ const Tetris = () => {
 	const [dropTime, setDropTime] = useState(null);
 	const [gameOver, setGameOver] = useState(false);
 
-	const {player, updatePlayerPos, resetPlayer, playerRotate} = usePlayer();
-	const {stage, setStage, rowsCleared} = useStage(player, resetPlayer);
-	const {score, setScore, rows, setRows, level, setLevel} = useGameStatus(
+	const { player, updatePlayerPos, resetPlayer, playerRotate } = usePlayer();
+	const { stage, setStage, rowsCleared, addRow } = useStage(player, resetPlayer, mainSocket);
+	const { score, setScore, rows, setRows, level, setLevel } = useGameStatus(
 		rowsCleared
 	);
-
-
-
-	
 
 	const startGame = () => {
 		// Reset everything
@@ -40,10 +39,8 @@ const Tetris = () => {
 		setGameOver(false);
 		setScore(0);
 		setRows(0);
-		setLevel(0);
+		setLevel(1);
 	};
-
-	
 
 	const keyUp = ({ keyCode }) => {
 		if (!gameOver) {
@@ -54,15 +51,12 @@ const Tetris = () => {
 		}
 	};
 
-
-
 	const move = ({ keyCode }) => {
 		if (!gameOver) {
 			// 37 = left arrow, -1 on x axis
 			// 39 = right arrow, +1 on x axis
 			// 40 = down arrow
 			// 38 = up arrow, rotate
-
 			if (keyCode === 37) {
 				movePlayer(-1, updatePlayerPos, player, stage);
 			} else if (keyCode === 39) {
@@ -75,7 +69,12 @@ const Tetris = () => {
 		}
 	};
 
-	useInterval(() => {
+	useInterval(async () => {
+		mainSocket = await userSocket();
+		mainSocket.on('idk', () => {
+			addRow(stage)
+			updatePlayerPos({ x: 0, y: 0, collided: false })
+		})
 		drop(rows, level, player, stage, setLevel, setDropTime, updatePlayerPos, setGameOver);
 	}, dropTime);
 
@@ -92,12 +91,12 @@ const Tetris = () => {
 					{gameOver ? (
 						<Display id="gameOverDisplay" gameOver={gameOver} text="Game Over" />
 					) : (
-						<div id="test">
-							<Display id="scoreDisplay" text={`Score: ${score}`} />
-							<Display id="rowDisplay" text={`Rows: ${rows}`} />
-							<Display id="levelDisplay" text={`Level: ${level}`} />
-						</div>
-					)}
+							<div id="test">
+								<Display id="scoreDisplay" text={`Score: ${score}`} />
+								<Display id="rowDisplay" text={`Rows: ${rows}`} />
+								<Display id="levelDisplay" text={`Level: ${level}`} />
+							</div>
+						)}
 					<StartButton callback={startGame} />
 				</aside>
 			</StyledTetris>
