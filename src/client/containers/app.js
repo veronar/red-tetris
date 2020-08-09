@@ -2,6 +2,9 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import Tetris from '../components/Tetris';
 import TopBar from '../components/TopBar';
+import userSocket from '../helpers/socket';
+
+userSocket();
 
 const App = () => {
 	const message = useSelector((state) => state.message);
