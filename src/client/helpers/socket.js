@@ -1,7 +1,7 @@
 import io from 'socket.io-client';
 
 export let mainSocket = null;
-const userSocket = () => {
+const userSocket = (room) => {
 	return new Promise(resolve => {
 		if (mainSocket?.connected === false || !mainSocket) {
 			mainSocket = io.connect("http://localhost:2000")
