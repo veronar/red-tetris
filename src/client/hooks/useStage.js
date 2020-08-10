@@ -30,7 +30,7 @@ export const useStage = (player, resetPlayer, mainSocket) => {
 				if (row.findIndex((cell) => cell[0] === 0 || cell[0] === 'B') === -1) {
 					setRowsCleared((prev) => prev + 1);
 					ack.unshift(new Array(newStage[0].length).fill([0, 'clear']));
-					if (mainSocket) mainSocket.emit('test')
+					mainSocket.emit('clearRow')
 					return ack;
 				}
 				ack.push(row);

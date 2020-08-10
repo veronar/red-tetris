@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { createStage, checkCollision } from '../helpers/gameHelpers';
 import userSocket from "../helpers/socket";
@@ -17,19 +17,48 @@ import Stage from './Stage';
 import Display from './Display';
 import StartButton from './StartButton';
 
-let mainSocket = null
+let mainSocket = null;
+let users = [];
+let start = false;
 
-const Tetris = () => {
-	// console.log(createStage());
-
+const Tetris = (props) => {
 	const [dropTime, setDropTime] = useState(null);
 	const [gameOver, setGameOver] = useState(false);
-
+	const [host, setHost] = useState(false)
 	const { player, updatePlayerPos, resetPlayer, playerRotate } = usePlayer();
 	const { stage, setStage, rowsCleared, addRow } = useStage(player, resetPlayer, mainSocket);
 	const { score, setScore, rows, setRows, level, setLevel } = useGameStatus(
 		rowsCleared
 	);
+
+	useEffect(() => {
+		const connect = async () => {
+			mainSocket = await userSocket(props.room);
+			mainSocket.off('updateUsers')
+			mainSocket.on('updateUsers', (t) => {
+				users = t
+				if (users[0] == mainSocket.id)
+					setHost(true)
+			})
+			mainSocket.on('addRow', () => {
+				addRow(stage)
+				updatePlayerPos({ x: 0, y: 0, collided: false })
+			})
+			mainSocket.on('startiguess', () => {
+				startGame()
+			})
+			// mainSocket.on('endgame', () => {
+			// 	setGameOver(true)
+			// 	setDropTime(null)
+			// })
+		}
+		connect()
+	}, [])
+
+	const callStartGame = () => {
+		mainSocket.emit('start?', props.room)
+		start = true;
+	}
 
 	const startGame = () => {
 		// Reset everything
@@ -69,12 +98,7 @@ const Tetris = () => {
 		}
 	};
 
-	useInterval(async () => {
-		mainSocket = await userSocket();
-		mainSocket.on('idk', () => {
-			addRow(stage)
-			updatePlayerPos({ x: 0, y: 0, collided: false })
-		})
+	useInterval(() => {
 		drop(rows, level, player, stage, setLevel, setDropTime, updatePlayerPos, setGameOver);
 	}, dropTime);
 
@@ -95,9 +119,10 @@ const Tetris = () => {
 								<Display id="scoreDisplay" text={`Score: ${score}`} />
 								<Display id="rowDisplay" text={`Rows: ${rows}`} />
 								<Display id="levelDisplay" text={`Level: ${level}`} />
+								<Display id="levelDisplay" text={`total: ${users.length}`} />
 							</div>
 						)}
-					<StartButton callback={startGame} />
+					{host ? (<StartButton callback={callStartGame} />) : (<p>Waiting for host</p>)}
 				</aside>
 			</StyledTetris>
 		</StyledTetrisWrapper>
