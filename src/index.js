@@ -8,12 +8,9 @@ import reducer from './client/reducers'
 import App from './client/containers/app'
 import { alert } from './client/actions/alert';
 import 'fontsource-roboto';
-// import userSocket from './client/helpers/socket'
 
 const composeEnhancer = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const initialState = {}
-
-// userSocket()
 
 const store = createStore(
 	reducer,
@@ -27,4 +24,4 @@ ReactDom.render((
 	</Provider>
 ), document.getElementById('tetris'))
 
-store.dispatch(alert('Soon, will be here a fantastic Tetris ...'))
+// store.dispatch(alert('Soon, will be here a fantastic Tetris ...'))

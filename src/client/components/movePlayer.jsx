@@ -1,7 +1,5 @@
 import { checkCollision } from "../helpers/gameHelpers";
 
-
-
 export const movePlayer = (dir, updatePlayerPos, player, stage) => {
 	if (!checkCollision(player, stage, { x: dir, y: 0 })) {
 		updatePlayerPos({ x: dir, y: 0 });

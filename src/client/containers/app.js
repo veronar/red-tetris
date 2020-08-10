@@ -7,12 +7,15 @@ import {
 	useParams,
 	Route,
 } from "react-router-dom";
-import userSocket from '../helpers/socket';
-
-let mainSocket = null
 
 const App = () => {
 	const message = useSelector((state) => state.message);
+	const Test = () => {
+		let { room } = useParams()
+		return <div className="App">
+			<Tetris room={room} />
+		</div>
+	}
 	return (
 		<Router>
 			<Route path="/:room?">
@@ -22,12 +25,4 @@ const App = () => {
 	)
 };
 
-function Test() {
-	let { room } = useParams()
-	if (!mainSocket)
-		mainSocket = userSocket(room);
-	return <div className="App">
-		<Tetris />
-	</div>
-}
 export default App;
