@@ -20,11 +20,14 @@ import StartButton from './StartButton';
 let mainSocket = null;
 let users = [];
 let start = false;
+let room = null;
 
 const Tetris = (props) => {
 	const [dropTime, setDropTime] = useState(null);
 	const [gameOver, setGameOver] = useState(false);
 	const [host, setHost] = useState(false)
+	const [user, setUser] = useState(null)
+	const [tot, setTot] = useState(0)
 	const { player, updatePlayerPos, resetPlayer, playerRotate } = usePlayer();
 	const { stage, setStage, rowsCleared, addRow } = useStage(player, resetPlayer, mainSocket);
 	const { score, setScore, rows, setRows, level, setLevel } = useGameStatus(
@@ -32,13 +35,19 @@ const Tetris = (props) => {
 	);
 
 	useEffect(() => {
+		let test = props.room.split('[')
+		room = test[0][0] == '#' ? test[0].substr(1) : test[0]
 		const connect = async () => {
 			mainSocket = await userSocket(props.room);
 			mainSocket.off('updateUsers')
+			mainSocket.off('addRow')
+			mainSocket.off('startiguess')
 			mainSocket.on('updateUsers', (t) => {
 				users = t
-				if (users[0] == mainSocket.id)
+				if (users[0].id == mainSocket.id)
 					setHost(true)
+				setUser(users.find(e => e.id == mainSocket.id))
+				setTot(users.length)
 			})
 			mainSocket.on('addRow', () => {
 				addRow(stage)
@@ -56,7 +65,7 @@ const Tetris = (props) => {
 	}, [])
 
 	const callStartGame = () => {
-		mainSocket.emit('start?', props.room)
+		mainSocket.emit('start?', room)
 		start = true;
 	}
 
@@ -116,10 +125,11 @@ const Tetris = (props) => {
 						<Display id="gameOverDisplay" gameOver={gameOver} text="Game Over" />
 					) : (
 							<div id="test">
+								{user ? (<Display id="nicknameDisplay" text={`Name: ${user.nickname}`} />) : ''}
 								<Display id="scoreDisplay" text={`Score: ${score}`} />
 								<Display id="rowDisplay" text={`Rows: ${rows}`} />
 								<Display id="levelDisplay" text={`Level: ${level}`} />
-								<Display id="levelDisplay" text={`total: ${users.length}`} />
+								<Display id="totalDisplay" text={`Total: ${tot}`} />
 							</div>
 						)}
 					{host ? (<StartButton callback={callStartGame} />) : (<p>Waiting for host</p>)}
