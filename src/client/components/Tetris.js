@@ -19,12 +19,17 @@ import StartButton from './StartButton';
 
 let mainSocket = null;
 let users = [];
+let left = [];
 let start = false;
+let room = null;
 
 const Tetris = (props) => {
 	const [dropTime, setDropTime] = useState(null);
 	const [gameOver, setGameOver] = useState(false);
+	const [winner, setWinner] = useState(null);
 	const [host, setHost] = useState(false)
+	const [user, setUser] = useState(null)
+	const [tot, setTot] = useState(0)
 	const { player, updatePlayerPos, resetPlayer, playerRotate } = usePlayer();
 	const { stage, setStage, rowsCleared, addRow } = useStage(player, resetPlayer, mainSocket);
 	const { score, setScore, rows, setRows, level, setLevel } = useGameStatus(
@@ -32,20 +37,36 @@ const Tetris = (props) => {
 	);
 
 	useEffect(() => {
+		let test = props.room.split('[')
+		room = test[0][0] == '#' ? test[0].substr(1) : test[0]
 		const connect = async () => {
 			mainSocket = await userSocket(props.room);
 			mainSocket.off('updateUsers')
+			mainSocket.off('addRow')
+			mainSocket.off('startiguess')
 			mainSocket.on('updateUsers', (t) => {
 				users = t
-				if (users[0] == mainSocket.id)
+				if (users[0].id == mainSocket.id)
 					setHost(true)
-			})
-			mainSocket.on('addRow', () => {
-				addRow(stage)
-				updatePlayerPos({ x: 0, y: 0, collided: false })
+				setUser(users.find(e => e.id == mainSocket.id))
 			})
 			mainSocket.on('startiguess', () => {
+				left = [...users]
 				startGame()
+				start = true;
+			})
+			mainSocket.on('deadUser', (id) => {
+				left.splice(left.findIndex(e => e.id == id), 1)
+				setTot(left.length)
+				if (left.length == 1) {
+					setGameOver(true)
+					setDropTime(null)
+					mainSocket.emit('winner', left[0])
+				}
+			})
+			mainSocket.on('setWinner', (nickname) => {
+				start = false;
+				setWinner(nickname)
 			})
 			// mainSocket.on('endgame', () => {
 			// 	setGameOver(true)
@@ -56,7 +77,7 @@ const Tetris = (props) => {
 	}, [])
 
 	const callStartGame = () => {
-		mainSocket.emit('start?', props.room)
+		mainSocket.emit('start?', room)
 		start = true;
 	}
 
@@ -66,6 +87,8 @@ const Tetris = (props) => {
 		setDropTime(1000);
 		resetPlayer();
 		setGameOver(false);
+		setTot(left.length)
+		setWinner(null)
 		setScore(0);
 		setRows(0);
 		setLevel(1);
@@ -91,7 +114,7 @@ const Tetris = (props) => {
 			} else if (keyCode === 39) {
 				movePlayer(1, updatePlayerPos, player, stage);
 			} else if (keyCode === 40) {
-				dropPlayer(setDropTime, drop, rows, level, player, stage, setLevel, updatePlayerPos, setGameOver);
+				dropPlayer(setDropTime, drop, rows, level, player, stage, setLevel, updatePlayerPos, setGameOver, mainSocket);
 			} else if (keyCode === 38) {
 				playerRotation(stage, 1, playerRotate);
 			}
@@ -99,7 +122,11 @@ const Tetris = (props) => {
 	};
 
 	useInterval(() => {
-		drop(rows, level, player, stage, setLevel, setDropTime, updatePlayerPos, setGameOver);
+		mainSocket.on('addRow', () => {
+			addRow(stage)
+			updatePlayerPos({ x: 0, y: 0, collided: false })
+		})
+		drop(rows, level, player, stage, setLevel, setDropTime, updatePlayerPos, setGameOver, mainSocket);
 	}, dropTime);
 
 	return (
@@ -112,17 +139,35 @@ const Tetris = (props) => {
 			<StyledTetris>
 				<Stage stage={stage} />
 				<aside>
+					{winner ? (<Display id="winnerDisplay" text={`Winner: ${winner}`} />) : ''}
 					{gameOver ? (
 						<Display id="gameOverDisplay" gameOver={gameOver} text="Game Over" />
 					) : (
 							<div id="test">
+								{user ? (<Display id="nicknameDisplay" text={`Name: ${user.nickname}`} />) : ''}
 								<Display id="scoreDisplay" text={`Score: ${score}`} />
 								<Display id="rowDisplay" text={`Rows: ${rows}`} />
 								<Display id="levelDisplay" text={`Level: ${level}`} />
-								<Display id="levelDisplay" text={`total: ${users.length}`} />
+								<Display id="totalDisplay" text={`Total: ${tot}`} />
 							</div>
 						)}
-					{host ? (<StartButton callback={callStartGame} />) : (<p>Waiting for host</p>)}
+					{start
+						? ''
+						: (host
+							? <StartButton callback={callStartGame} />
+							: <p>Waiting for host</p>
+						)
+					}
+					{/* {(() => {
+						if (!start) {
+							if (host)
+								return (
+									<StartButton callback={callStartGame} />
+								)
+							return (<p>Waiting for host</p>)
+
+						}
+					})()} */}
 				</aside>
 			</StyledTetris>
 		</StyledTetrisWrapper>

@@ -10,17 +10,19 @@ import {
 
 const App = () => {
 	const message = useSelector((state) => state.message);
-	const Test = () => {
-		let { room } = useParams()
+	const Test = (props) => {
+		let room;
+		if (props.location.hash != '')
+			room = props.location.hash;
+		else
+			room = props.location.pathname
 		return <div className="App">
 			<Tetris room={room} />
 		</div>
 	}
 	return (
 		<Router>
-			<Route path="/:room?">
-				<Test />
-			</Route>
+			<Route path="/:room?" component={Test} />
 		</Router>
 	)
 };

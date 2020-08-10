@@ -1,8 +1,9 @@
 exports.makeSocket = io => {
+	let users = []
 	io.on('connection', function (socket) {
 		console.log("Socket connected: " + socket.id)
-		let numSocs = null
 		let room = null;
+		let nickname = null;
 		socket.emit('connection')
 		socket.on('action', (action) => {
 			if (action.type === 'server/ping') {
@@ -10,16 +11,27 @@ exports.makeSocket = io => {
 			}
 		})
 		socket.on('join', (r) => {
-			socket.join(r)
-			// Below give amount of users in current room
-			room = r
-			io.of('/').in(r).clients(function (error, clients) {
-				numSocs = clients.length;
-				io.to(r).emit('updateUsers', clients)
-			});
+			let temp = r.split('[')
+			room = temp[0][0] == '#' ? temp[0].substr(1) : temp[0]
+			nickname = temp[1] ? temp[1].substr(0, temp[1].length - 1) : 'Anon'
+			socket.join(room)
+			users.push({ id: socket.id, nickname: nickname, room: room })
+			io.to(room).emit('updateUsers', users.filter(e => e.room == room))
+
+			// Total  users connected to room
+			// io.of('/').in(room).clients(function (error, clients) {
+			// 	console.log(clients)
+			// });
 		})
 		socket.on('clearRow', () => {
-			socket.to(Object.keys(socket.rooms)[0]).emit('addRow')
+			socket.to(room).emit('addRow')
+		})
+		socket.on('died', (id) => {
+			socket.to(room).emit('deadUser', id)
+		})
+		socket.on('winner', (winner) => {
+			socket.nsp.to(room).emit('setWinner', winner.nickname);
+			// socket.to(room).emit('setWinner', winner.nickname)
 		})
 		socket.on('endgame', () => {
 			io.of('/').in(room).clients(function (error, clients) {
@@ -27,8 +39,12 @@ exports.makeSocket = io => {
 					socket.to(Object.keys(socket.rooms)[0]).emit('endgame')
 			});
 		})
-		socket.on('start?', (room) => {
-			io.to(room).emit('startiguess')
+		socket.on('start?', (r) => {
+			io.to(r).emit('startiguess')
+		})
+		socket.on('disconnecting', () => {
+			users.splice(users.findIndex(e => e.id == socket.id && e.room == room), 1)
+			io.to(room).emit('updateUsers', users.filter(e => e.room == room))
 		})
 	})
 }
