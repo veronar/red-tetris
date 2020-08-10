@@ -36,19 +36,35 @@ const Tetris = (props) => {
 		rowsCleared
 	);
 
+	const startGame = () => {
+		// Reset everything
+		setStage(createStage());
+		setDropTime(1000);
+		resetPlayer();
+		setGameOver(false);
+		setTot(left.length)
+		setWinner(null)
+		setScore(0);
+		setRows(0);
+		setLevel(1);
+	};
+
 	useEffect(() => {
 		let test = props.room.split('[')
-		room = test[0][0] == '#' ? test[0].substr(1) : test[0]
+		room = test[0][0] === '#' ? test[0].substr(1) : test[0]
 		const connect = async () => {
 			mainSocket = await userSocket(props.room);
 			mainSocket.off('updateUsers')
 			mainSocket.off('addRow')
 			mainSocket.off('startiguess')
+			mainSocket.off('deadUser')
+			mainSocket.off('setWinner')
 			mainSocket.on('updateUsers', (t) => {
 				users = t
-				if (users[0].id == mainSocket.id)
+				if (users[0].id === mainSocket.id)
 					setHost(true)
-				setUser(users.find(e => e.id == mainSocket.id))
+				setUser(users.find(e => e.id === mainSocket.id))
+				setTot(users.length)
 			})
 			mainSocket.on('startiguess', () => {
 				left = [...users]
@@ -56,9 +72,9 @@ const Tetris = (props) => {
 				start = true;
 			})
 			mainSocket.on('deadUser', (id) => {
-				left.splice(left.findIndex(e => e.id == id), 1)
+				left.splice(left.findIndex(e => e.id === id), 1)
 				setTot(left.length)
-				if (left.length == 1) {
+				if (left.length === 1) {
 					setGameOver(true)
 					setDropTime(null)
 					mainSocket.emit('winner', left[0])
@@ -80,19 +96,6 @@ const Tetris = (props) => {
 		mainSocket.emit('start?', room)
 		start = true;
 	}
-
-	const startGame = () => {
-		// Reset everything
-		setStage(createStage());
-		setDropTime(1000);
-		resetPlayer();
-		setGameOver(false);
-		setTot(left.length)
-		setWinner(null)
-		setScore(0);
-		setRows(0);
-		setLevel(1);
-	};
 
 	const keyUp = ({ keyCode }) => {
 		if (!gameOver) {
@@ -169,6 +172,12 @@ const Tetris = (props) => {
 						}
 					})()} */}
 				</aside>
+				<ul style={{ listStyle: "none" }}>
+					<h3>Players Left:</h3>
+					{left.map((value, index) => {
+						return <li key={index}>{value.nickname}</li>
+					})}
+				</ul>
 			</StyledTetris>
 		</StyledTetrisWrapper>
 	);

@@ -5,7 +5,6 @@ import { createStage } from '../helpers/gameHelpers';
 export const useStage = (player, resetPlayer, mainSocket) => {
 	const [stage, setStage] = useState(createStage());
 	const [rowsCleared, setRowsCleared] = useState(0);
-	let counter;
 	const addRow = (stage) => {
 		for (let i = 1; i < stage.length; i++) {
 			for (let j = 0; j < stage[i].length; j++) {
@@ -20,7 +19,7 @@ export const useStage = (player, resetPlayer, mainSocket) => {
 
 	useEffect(() => {
 		setRowsCleared(0);
-		counter = 0;
+		let counter = 0;
 		const sweepRows = (newStage) =>
 			newStage.reduce((ack, row) => {
 				if (row.findIndex((cell) => cell[0] === 0 || cell[0] === 'B') === -1) {
