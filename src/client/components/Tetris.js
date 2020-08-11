@@ -28,6 +28,7 @@ const Tetris = (props) => {
 	const [winner, setWinner] = useState(null);
 	const [host, setHost] = useState(false)
 	const [user, setUser] = useState(null)
+	const [start, setStart] = useState(false)
 	const { player, updatePlayerPos, resetPlayer, playerRotate } = usePlayer();
 	const { stage, setStage, rowsCleared, addRow } = useStage(player, resetPlayer, mainSocket);
 	const { score, setScore, rows, setRows, level, setLevel } = useGameStatus(
@@ -68,7 +69,7 @@ const Tetris = (props) => {
 				mainSocket.emit('updatePlayer', stage)
 				newGame.left = [...newGame.users]
 				startGame()
-				newGame.start = true;
+				setStart(true)
 			})
 			mainSocket.on('deadUser', (id) => {
 				newGame.left.splice(newGame.left.findIndex(e => e.id === id), 1)
@@ -79,7 +80,7 @@ const Tetris = (props) => {
 				}
 			})
 			mainSocket.on('setWinner', (nickname) => {
-				newGame.start = false;
+				setStart(false)
 				mainSocket.emit('updatePlayer', stage)
 				setWinner(nickname)
 			})
@@ -89,7 +90,7 @@ const Tetris = (props) => {
 
 	const callStartGame = () => {
 		mainSocket.emit('start?', newGame.room)
-		newGame.start = true;
+		setStart(true)
 	}
 
 	const keyUp = ({ keyCode }) => {
@@ -112,7 +113,7 @@ const Tetris = (props) => {
 			} else if (keyCode === 39) {
 				movePlayer(1, updatePlayerPos, player, stage);
 			} else if (keyCode === 40) {
-				dropPlayer(setDropTime, drop, rows, level, player, stage, setLevel, updatePlayerPos, setGameOver, mainSocket);
+				dropPlayer(setDropTime, drop, rows, level, player, stage, setLevel, updatePlayerPos, setGameOver, mainSocket, start, setStart);
 			} else if (keyCode === 38) {
 				playerRotation(stage, 1, playerRotate);
 			}
@@ -124,7 +125,7 @@ const Tetris = (props) => {
 			addRow(stage)
 			updatePlayerPos({ x: 0, y: 0, collided: false })
 		})
-		drop(rows, level, player, stage, setLevel, setDropTime, updatePlayerPos, setGameOver, mainSocket);
+		drop(rows, level, player, stage, setLevel, setDropTime, updatePlayerPos, setGameOver, mainSocket, start, setStart);
 	}, dropTime);
 
 	return (

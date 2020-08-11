@@ -6,13 +6,13 @@ export const movePlayer = (dir, updatePlayerPos, player, stage) => {
 	}
 };
 
-export const dropPlayer = (setDropTime, drop, rows, level, player, stage, setLevel, updatePlayerPos, setGameOver, mainSocket) => {
+export const dropPlayer = (setDropTime, drop, rows, level, player, stage, setLevel, updatePlayerPos, setGameOver, mainSocket, start, setStart) => {
 	console.log('Interval off');
 	setDropTime(null);
-	drop(rows, level, player, stage, setLevel, setDropTime, updatePlayerPos, setGameOver, mainSocket);
+	drop(rows, level, player, stage, setLevel, setDropTime, updatePlayerPos, setGameOver, mainSocket, start, setStart);
 };
 
-export const drop = (rows, level, player, stage, setLevel, setDropTime, updatePlayerPos, setGameOver, mainSocket) => {
+export const drop = (rows, level, player, stage, setLevel, setDropTime, updatePlayerPos, setGameOver, mainSocket, start, setStart) => {
 	// Increase level when player has cleared 10 rows
 	if (rows > (level + 1) * 10) {
 		setLevel((prev) => prev + 1);
@@ -29,6 +29,7 @@ export const drop = (rows, level, player, stage, setLevel, setDropTime, updatePl
 			mainSocket.emit('died', mainSocket.id)
 			setGameOver(true);
 			setDropTime(null);
+			setStart(false)
 		}
 		updatePlayerPos({ x: 0, y: 0, collided: true });
 	}
