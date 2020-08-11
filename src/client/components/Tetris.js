@@ -17,11 +17,10 @@ import Stage from './Stage';
 import Display from './Display';
 import StartButton from './StartButton';
 
+const Game = require('../../server/models/Game').Game;
+let newGame = new Game();
+
 let mainSocket = null;
-let users = [];
-let left = [];
-let start = false;
-let room = null;
 
 const Tetris = (props) => {
 	const [dropTime, setDropTime] = useState(null);
@@ -41,7 +40,7 @@ const Tetris = (props) => {
 		setDropTime(1000);
 		resetPlayer();
 		setGameOver(false);
-		left = [...users]
+		newGame.left = [...newGame.users]
 		setWinner(null)
 		setScore(0);
 		setRows(0);
@@ -49,8 +48,9 @@ const Tetris = (props) => {
 	};
 
 	useEffect(() => {
+		console.log(newGame)
 		let test = props.room.split('[')
-		room = test[0][0] === '#' ? test[0].substr(1) : test[0]
+		newGame.room = test[0][0] === '#' ? test[0].substr(1) : test[0]
 		const connect = async () => {
 			mainSocket = await userSocket(props.room);
 			mainSocket.off('updateUsers')
@@ -59,27 +59,27 @@ const Tetris = (props) => {
 			mainSocket.off('deadUser')
 			mainSocket.off('setWinner')
 			mainSocket.on('updateUsers', (t) => {
-				users = t
-				if (users[0].id === mainSocket.id)
+				newGame.users = t
+				if (newGame.users[0].id === mainSocket.id)
 					setHost(true)
-				setUser(users.find(e => e.id === mainSocket.id))
+				setUser(newGame.users.find(e => e.id === mainSocket.id))
 			})
 			mainSocket.on('startiguess', () => {
 				mainSocket.emit('updatePlayer', stage)
-				left = [...users]
+				newGame.left = [...newGame.users]
 				startGame()
-				start = true;
+				newGame.start = true;
 			})
 			mainSocket.on('deadUser', (id) => {
-				left.splice(left.findIndex(e => e.id === id), 1)
-				if (left.length === 1) {
+				newGame.left.splice(newGame.left.findIndex(e => e.id === id), 1)
+				if (newGame.left.length === 1) {
 					setGameOver(true)
 					setDropTime(null)
-					mainSocket.emit('winner', left[0])
+					mainSocket.emit('winner', newGame.left[0])
 				}
 			})
 			mainSocket.on('setWinner', (nickname) => {
-				start = false;
+				newGame.start = false;
 				mainSocket.emit('updatePlayer', stage)
 				setWinner(nickname)
 			})
@@ -88,8 +88,8 @@ const Tetris = (props) => {
 	}, [])
 
 	const callStartGame = () => {
-		mainSocket.emit('start?', room)
-		start = true;
+		mainSocket.emit('start?', newGame.room)
+		newGame.start = true;
 	}
 
 	const keyUp = ({ keyCode }) => {
@@ -146,10 +146,10 @@ const Tetris = (props) => {
 								<Display id="scoreDisplay" text={`Score: ${score}`} />
 								<Display id="rowDisplay" text={`Rows: ${rows}`} />
 								<Display id="levelDisplay" text={`Level: ${level}`} />
-								<Display id="leftDisplay" text={`Left: ${left.length}`} />
+								<Display id="leftDisplay" text={`Left: ${newGame.left.length}`} />
 							</div>
 						)}
-					{start
+					{newGame.start
 						? ''
 						: (host
 							? <StartButton callback={callStartGame} />
@@ -159,8 +159,8 @@ const Tetris = (props) => {
 				</aside>{
 					!gameOver ?
 						<div id="stageContainer">
-							{left ? (users.map((value, index) => {
-								if (value.board.length > 0 && value.id !== mainSocket.id && left.find(e => e.id === value.id))
+							{newGame.left ? (newGame.users.map((value, index) => {
+								if (value.board && value.id !== mainSocket.id && newGame.left.find(e => e.id === value.id))
 									return <div key={index} style={{ width: "5vw", padding: "0 10px" }}><p>{value.nickname}</p><Stage type={1} stage={value.board} /></div>
 							})) : ''}
 						</div> : ''
