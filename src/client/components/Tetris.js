@@ -65,9 +65,10 @@ const Tetris = (props) => {
 					setHost(true)
 				setUser(users.find(e => e.id === mainSocket.id))
 				setTot(users.length)
+				left = [...users]
 			})
 			mainSocket.on('startiguess', () => {
-				left = [...users]
+				mainSocket.emit('updatePlayer', stage)
 				startGame()
 				start = true;
 			})
@@ -79,9 +80,11 @@ const Tetris = (props) => {
 					setDropTime(null)
 					mainSocket.emit('winner', left[0])
 				}
+				mainSocket.emit('updatePlayer', stage)
 			})
 			mainSocket.on('setWinner', (nickname) => {
 				start = false;
+				mainSocket.emit('updatePlayer', stage)
 				setWinner(nickname)
 			})
 			// mainSocket.on('endgame', () => {
@@ -161,16 +164,6 @@ const Tetris = (props) => {
 							: <p>Waiting for host</p>
 						)
 					}
-					{/* {(() => {
-						if (!start) {
-							if (host)
-								return (
-									<StartButton callback={callStartGame} />
-								)
-							return (<p>Waiting for host</p>)
-
-						}
-					})()} */}
 				</aside>
 				<ul style={{ listStyle: "none" }}>
 					<h3>Players Left:</h3>
@@ -178,6 +171,12 @@ const Tetris = (props) => {
 						return <li key={index}>{value.nickname}</li>
 					})}
 				</ul>
+			</StyledTetris>
+			<StyledTetris>
+				{users ? (users.map((value, index) => {
+					if (value.board.length > 0)
+						return <Stage key={index} stage={value.board} />
+				})) : ''}
 			</StyledTetris>
 		</StyledTetrisWrapper>
 	);

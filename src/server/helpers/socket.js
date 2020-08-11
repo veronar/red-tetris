@@ -15,13 +15,21 @@ exports.makeSocket = io => {
 			room = temp[0][0] == '#' ? temp[0].substr(1) : temp[0]
 			nickname = temp[1] ? temp[1].substr(0, temp[1].length - 1) : 'Anon'
 			socket.join(room)
-			users.push({ id: socket.id, nickname: nickname, room: room })
+			users.push({ id: socket.id, nickname: nickname, board: [], room: room })
 			io.to(room).emit('updateUsers', users.filter(e => e.room == room))
 
 			// Total  users connected to room
 			// io.of('/').in(room).clients(function (error, clients) {
 			// 	console.log(clients)
 			// });
+		})
+		socket.on('updatePlayer', (p) => {
+			users = users.map(e => {
+				if (e.id === socket.id)
+					e.board = [...p]
+				return e
+			})
+			io.to(room).emit('updateUsers', users.filter(e => e.room == room))
 		})
 		socket.on('clearRow', () => {
 			socket.to(room).emit('addRow')

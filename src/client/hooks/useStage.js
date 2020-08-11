@@ -55,7 +55,9 @@ export const useStage = (player, resetPlayer, mainSocket) => {
 			// then check if collided
 			if (player.collided) {
 				resetPlayer();
-				return sweepRows(newStage);
+				let temp = sweepRows(newStage)
+				mainSocket.emit('updatePlayer', temp)
+				return temp;
 			}
 
 			return newStage;
