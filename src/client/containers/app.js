@@ -4,18 +4,15 @@ import Tetris from '../components/Tetris';
 import TopBar from '../components/TopBar';
 import {
 	BrowserRouter as Router,
-	useParams,
 	Route,
 } from "react-router-dom";
 
 const App = () => {
 	const message = useSelector((state) => state.message);
-	const Test = (props) => {
-		let room;
-		if (props.location.hash != '')
-			room = props.location.hash;
-		else
-			room = props.location.pathname
+	const Test = () => {
+		let room = window.location.href.split('/')[3];
+		if (room[0])
+			room = room.substr(1);
 		return <div className="App">
 			<Tetris room={room} />
 		</div>

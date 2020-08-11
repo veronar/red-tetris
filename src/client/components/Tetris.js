@@ -29,36 +29,50 @@ const Tetris = (props) => {
 	const [winner, setWinner] = useState(null);
 	const [host, setHost] = useState(false)
 	const [user, setUser] = useState(null)
-	const [tot, setTot] = useState(0)
 	const { player, updatePlayerPos, resetPlayer, playerRotate } = usePlayer();
 	const { stage, setStage, rowsCleared, addRow } = useStage(player, resetPlayer, mainSocket);
 	const { score, setScore, rows, setRows, level, setLevel } = useGameStatus(
 		rowsCleared
 	);
 
+	const startGame = () => {
+		// Reset everything
+		setStage(createStage());
+		setDropTime(1000);
+		resetPlayer();
+		setGameOver(false);
+		left = [...users]
+		setWinner(null)
+		setScore(0);
+		setRows(0);
+		setLevel(1);
+	};
+
 	useEffect(() => {
 		let test = props.room.split('[')
-		room = test[0][0] == '#' ? test[0].substr(1) : test[0]
+		room = test[0][0] === '#' ? test[0].substr(1) : test[0]
 		const connect = async () => {
 			mainSocket = await userSocket(props.room);
 			mainSocket.off('updateUsers')
 			mainSocket.off('addRow')
 			mainSocket.off('startiguess')
+			mainSocket.off('deadUser')
+			mainSocket.off('setWinner')
 			mainSocket.on('updateUsers', (t) => {
 				users = t
-				if (users[0].id == mainSocket.id)
+				if (users[0].id === mainSocket.id)
 					setHost(true)
-				setUser(users.find(e => e.id == mainSocket.id))
+				setUser(users.find(e => e.id === mainSocket.id))
 			})
 			mainSocket.on('startiguess', () => {
+				mainSocket.emit('updatePlayer', stage)
 				left = [...users]
 				startGame()
 				start = true;
 			})
 			mainSocket.on('deadUser', (id) => {
-				left.splice(left.findIndex(e => e.id == id), 1)
-				setTot(left.length)
-				if (left.length == 1) {
+				left.splice(left.findIndex(e => e.id === id), 1)
+				if (left.length === 1) {
 					setGameOver(true)
 					setDropTime(null)
 					mainSocket.emit('winner', left[0])
@@ -66,12 +80,9 @@ const Tetris = (props) => {
 			})
 			mainSocket.on('setWinner', (nickname) => {
 				start = false;
+				mainSocket.emit('updatePlayer', stage)
 				setWinner(nickname)
 			})
-			// mainSocket.on('endgame', () => {
-			// 	setGameOver(true)
-			// 	setDropTime(null)
-			// })
 		}
 		connect()
 	}, [])
@@ -80,19 +91,6 @@ const Tetris = (props) => {
 		mainSocket.emit('start?', room)
 		start = true;
 	}
-
-	const startGame = () => {
-		// Reset everything
-		setStage(createStage());
-		setDropTime(1000);
-		resetPlayer();
-		setGameOver(false);
-		setTot(left.length)
-		setWinner(null)
-		setScore(0);
-		setRows(0);
-		setLevel(1);
-	};
 
 	const keyUp = ({ keyCode }) => {
 		if (!gameOver) {
@@ -148,7 +146,7 @@ const Tetris = (props) => {
 								<Display id="scoreDisplay" text={`Score: ${score}`} />
 								<Display id="rowDisplay" text={`Rows: ${rows}`} />
 								<Display id="levelDisplay" text={`Level: ${level}`} />
-								<Display id="totalDisplay" text={`Total: ${tot}`} />
+								<Display id="leftDisplay" text={`Left: ${left.length}`} />
 							</div>
 						)}
 					{start
@@ -158,17 +156,15 @@ const Tetris = (props) => {
 							: <p>Waiting for host</p>
 						)
 					}
-					{/* {(() => {
-						if (!start) {
-							if (host)
-								return (
-									<StartButton callback={callStartGame} />
-								)
-							return (<p>Waiting for host</p>)
-
-						}
-					})()} */}
-				</aside>
+				</aside>{
+					!gameOver ?
+						<div id="stageContainer">
+							{left ? (users.map((value, index) => {
+								if (value.board.length > 0 && value.id !== mainSocket.id && left.find(e => e.id === value.id))
+									return <div key={index} style={{ width: "5vw", padding: "0 10px" }}><p>{value.nickname}</p><Stage type={1} stage={value.board} /></div>
+							})) : ''}
+						</div> : ''
+				}
 			</StyledTetris>
 		</StyledTetrisWrapper>
 	);

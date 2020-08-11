@@ -18,3 +18,10 @@ body {
 		/* Safari, Android, iOS */
 			url('../fonts/roboto-v20-latin-regular.svg#Roboto') format('svg'); /* Legacy iOS */
 }
+
+#stageContainer {
+	display: flex;
+	justify-content: flex-start;
+	width: 50vw;
+	flex-wrap: wrap;
+}
