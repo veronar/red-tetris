@@ -1,5 +1,6 @@
 exports.makeSocket = io => {
 	let users = []
+	const Player = require('../models/Player').Player;
 	io.on('connection', function (socket) {
 		console.log("Socket connected: " + socket.id)
 		let room = null;
@@ -15,7 +16,9 @@ exports.makeSocket = io => {
 			room = temp[0][0] == '#' ? temp[0].substr(1) : temp[0]
 			nickname = temp[1] ? temp[1].substr(0, temp[1].length - 1) : 'Anon'
 			socket.join(room)
-			users.push({ id: socket.id, nickname: nickname, board: [], room: room })
+			let what = new Player(socket.id, nickname, room)
+			users.push(what)
+			what = null
 			io.to(room).emit('updateUsers', users.filter(e => e.room == room))
 
 			// Total  users connected to room
