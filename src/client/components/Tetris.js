@@ -29,7 +29,6 @@ const Tetris = (props) => {
 	const [winner, setWinner] = useState(null);
 	const [host, setHost] = useState(false)
 	const [user, setUser] = useState(null)
-	const [tot, setTot] = useState(0)
 	const { player, updatePlayerPos, resetPlayer, playerRotate } = usePlayer();
 	const { stage, setStage, rowsCleared, addRow } = useStage(player, resetPlayer, mainSocket);
 	const { score, setScore, rows, setRows, level, setLevel } = useGameStatus(
@@ -42,7 +41,7 @@ const Tetris = (props) => {
 		setDropTime(1000);
 		resetPlayer();
 		setGameOver(false);
-		setTot(left.length)
+		left = [...users]
 		setWinner(null)
 		setScore(0);
 		setRows(0);
@@ -64,33 +63,26 @@ const Tetris = (props) => {
 				if (users[0].id === mainSocket.id)
 					setHost(true)
 				setUser(users.find(e => e.id === mainSocket.id))
-				setTot(users.length)
-				left = [...users]
 			})
 			mainSocket.on('startiguess', () => {
 				mainSocket.emit('updatePlayer', stage)
+				left = [...users]
 				startGame()
 				start = true;
 			})
 			mainSocket.on('deadUser', (id) => {
 				left.splice(left.findIndex(e => e.id === id), 1)
-				setTot(left.length)
 				if (left.length === 1) {
 					setGameOver(true)
 					setDropTime(null)
 					mainSocket.emit('winner', left[0])
 				}
-				mainSocket.emit('updatePlayer', stage)
 			})
 			mainSocket.on('setWinner', (nickname) => {
 				start = false;
 				mainSocket.emit('updatePlayer', stage)
 				setWinner(nickname)
 			})
-			// mainSocket.on('endgame', () => {
-			// 	setGameOver(true)
-			// 	setDropTime(null)
-			// })
 		}
 		connect()
 	}, [])
@@ -154,7 +146,7 @@ const Tetris = (props) => {
 								<Display id="scoreDisplay" text={`Score: ${score}`} />
 								<Display id="rowDisplay" text={`Rows: ${rows}`} />
 								<Display id="levelDisplay" text={`Level: ${level}`} />
-								<Display id="totalDisplay" text={`Total: ${tot}`} />
+								<Display id="leftDisplay" text={`Left: ${left.length}`} />
 							</div>
 						)}
 					{start
@@ -164,19 +156,15 @@ const Tetris = (props) => {
 							: <p>Waiting for host</p>
 						)
 					}
-				</aside>
-				<ul style={{ listStyle: "none" }}>
-					<h3>Players Left:</h3>
-					{left.map((value, index) => {
-						return <li key={index}>{value.nickname}</li>
-					})}
-				</ul>
-			</StyledTetris>
-			<StyledTetris>
-				{users ? (users.map((value, index) => {
-					if (value.board.length > 0)
-						return <Stage key={index} stage={value.board} />
-				})) : ''}
+				</aside>{
+					!gameOver ?
+						<div id="stageContainer">
+							{left ? (users.map((value, index) => {
+								if (value.board.length > 0 && value.id !== mainSocket.id && left.find(e => e.id === value.id))
+									return <div key={index} style={{ width: "5vw", padding: "0 10px" }}><p>{value.nickname}</p><Stage type={1} stage={value.board} /></div>
+							})) : ''}
+						</div> : ''
+				}
 			</StyledTetris>
 		</StyledTetrisWrapper>
 	);
