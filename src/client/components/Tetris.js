@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
-import { createStage, checkCollision } from '../helpers/gameHelpers';
-import userSocket from "../helpers/socket";
+import { createStage } from '../helpers/gameHelpers';
+import {userSocket} from "../helpers/socket";
 
 // Styled Component
 import { StyledTetrisWrapper, StyledTetris } from './styles/StyledTetris';

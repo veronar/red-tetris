@@ -1,11 +1,11 @@
 import * as gameHelpers from "../client/helpers/gameHelpers";
 import { renderHook, act } from "@testing-library/react-hooks";
-import * as tetrominos from "../client/helpers/tetrominos";
+import * as tetrominosHelper from "../client/helpers/tetrominos";
 import { usePlayer } from "../client/hooks/usePlayer";
 import { useStage } from "../client/hooks/useStage";
 import { useInterval } from "../client/hooks/useInterval";
 import { useGameStatus } from "../client/hooks/useGameStatus";
-
+import { mainSocket } from "../client/helpers/socket";
 
 describe("Testing Tetris hooks", () => {
   const clearStage = Array.from(Array(gameHelpers.STAGE_HEIGHT), () =>
@@ -16,14 +16,18 @@ describe("Testing Tetris hooks", () => {
   let gameStatus;
   let results;
   let result;
+  let mockSocket = {
+    emit: jest.fn(),
+  };
   beforeEach(() => {
     result = renderHook(usePlayer).result;
     act(() => {
       result.current.resetPlayer();
     });
     player = result.current;
-    result = renderHook(() => useStage(player.player, player.resetPlayer))
-      .result;
+    result = renderHook(() =>
+      useStage(player.player, player.resetPlayer, mainSocket)
+    ).result;
     stage = result.current;
     // result = renderHook(() => useGameStatus(stage.rowsCleared));
     // gameStatus = result.current;
@@ -32,16 +36,13 @@ describe("Testing Tetris hooks", () => {
   describe("test usePlayer", () => {
     it("should rotate player", () => {
       const { result } = renderHook(usePlayer);
-
-      const checkCollisionSpy = jest
-        .spyOn(tetrominos, "randomTetromino")
-        .mockImplementation(() => {
-          return tetrominos.TETROMINOS["J"];
-        });
       act(() => {
         result.current.resetPlayer();
       });
-      let initPlayer = { ...result.current.player };
+      let initPlayer = {
+        ...result.current.player,
+        tetromino: tetrominosHelper.TETROMINOS["J"].shape,
+      };
       act(() => {
         result.current.playerRotate(stage.stage, 1);
       });
@@ -82,7 +83,11 @@ describe("Testing Tetris hooks", () => {
     it("should do something", () => {
       const playerStage = renderHook(usePlayer).result;
       const { result, rerender } = renderHook(() =>
-        useStage(playerStage.current.player, playerStage.current.resetPlayer)
+        useStage(
+          playerStage.current.player,
+          playerStage.current.resetPlayer,
+          mockSocket
+        )
       );
       const resetPl = jest.spyOn(playerStage.current, "resetPlayer");
       playerStage.current.player.pos = { x: 5, y: 2 };
@@ -91,22 +96,6 @@ describe("Testing Tetris hooks", () => {
       expect(resetPl).toHaveBeenCalledTimes(1);
     });
   });
-  // describe("test useGameStatus", () => {
-  // 	it("should do something", () => {
-  // 		let rowsCleared = 0;
-  // 		const {result, rerender} = renderHook(() => useGameStatus(), {initialProps: {rowsCleared: 3}});
-  // 		console.log(result.current)
-  // 		act(() => {
-  // 			// result.current.setLevel(1);
-  // 			// result.current.setScore(40);
-  // 			rowsCleared = 1;
-  // 			rerender();
-
-  // 			// rerender()
-  // 		})
-  // 		console.log(result.current)
-  // 	});
-  // });
 
   describe("test useInterval", () => {
     it("should do something", () => {
@@ -117,14 +106,4 @@ describe("Testing Tetris hooks", () => {
       expect(stub).toHaveBeenCalled();
     });
   });
-  
-
-//   jest.mock("usePlayer", () => ({
-// 	usePlayer: jest.fn().mockImplementation(() => ({
-// 		player: player,
-// 		updatePlayerPos: mockUpdatePlayerPos,
-// 		resetPlayer: mockResetPlayer,
-// 		playerRotate: mockPlayerRotate,
-// 	})),
-//   }));
 });

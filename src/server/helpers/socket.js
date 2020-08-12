@@ -2,7 +2,6 @@ exports.makeSocket = io => {
 	let users = []
 	const Player = require('../models/Player').Player;
 	io.on('connection', function (socket) {
-		console.log("Socket connected: " + socket.id)
 		let room = null;
 		let nickname = null;
 		socket.emit('connection')
@@ -23,7 +22,6 @@ exports.makeSocket = io => {
 
 			// Total  users connected to room
 			// io.of('/').in(room).clients(function (error, clients) {
-			// 	console.log(clients)
 			// });
 		})
 		socket.on('updatePlayer', (p) => {
@@ -35,6 +33,7 @@ exports.makeSocket = io => {
 			io.to(room).emit('updateUsers', users.filter(e => e.room == room))
 		})
 		socket.on('clearRow', () => {
+			console.log('in clear row')
 			socket.to(room).emit('addRow')
 		})
 		socket.on('died', (id) => {
@@ -53,7 +52,7 @@ exports.makeSocket = io => {
 		socket.on('start?', (r) => {
 			io.to(r).emit('startiguess')
 		})
-		socket.on('disconnecting', () => {
+		socket.on('disconnect', () => {
 			users.splice(users.findIndex(e => e.id == socket.id && e.room == room), 1)
 			io.to(room).emit('updateUsers', users.filter(e => e.room == room))
 		})

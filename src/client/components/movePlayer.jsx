@@ -7,7 +7,6 @@ export const movePlayer = (dir, updatePlayerPos, player, stage) => {
 };
 
 export const dropPlayer = (setDropTime, drop, rows, level, player, stage, setLevel, updatePlayerPos, setGameOver, mainSocket, start, setStart) => {
-	console.log('Interval off');
 	setDropTime(null);
 	drop(rows, level, player, stage, setLevel, setDropTime, updatePlayerPos, setGameOver, mainSocket, start, setStart);
 };

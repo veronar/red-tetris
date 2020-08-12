@@ -6,7 +6,6 @@ import { createStore, applyMiddleware, compose } from 'redux'
 import { Provider } from 'react-redux'
 import reducer from './client/reducers'
 import App from './client/containers/app'
-import { alert } from './client/actions/alert';
 import 'fontsource-roboto';
 
 const composeEnhancer = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
