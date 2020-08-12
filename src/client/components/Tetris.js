@@ -30,7 +30,7 @@ const Tetris = (props) => {
 	const [user, setUser] = useState(null)
 	const [start, setStart] = useState(false)
 	const { player, updatePlayerPos, resetPlayer, playerRotate } = usePlayer();
-	const { stage, setStage, rowsCleared, addRow } = useStage(player, resetPlayer, mainSocket);
+const { stage, setStage, rowsCleared, addRow } = useStage(player, resetPlayer, mainSocket);
 	const { score, setScore, rows, setRows, level, setLevel } = useGameStatus(
 		rowsCleared
 	);
@@ -47,7 +47,7 @@ const Tetris = (props) => {
 		setLevel(1);
   }, [resetPlayer, setLevel, setRows, setScore, setStage]);
   
-  
+
   const connect = useCallback(async () => {
     if (!mainSocket) {
       let test = props.room.split('[')
@@ -82,9 +82,15 @@ const Tetris = (props) => {
             setStart(false)
             mainSocket.emit('updatePlayer', stage)
             setWinner(nickname)
-          })
+		  })
+		  mainSocket.on('addRow', () => {
+			addRow(stage)
+			updatePlayerPos({ x: 0, y: 0, collided: false })
+		})
     }
-  }, [props.room, stage, startGame])
+  }, [props.room, stage, startGame, addRow, updatePlayerPos])
+  
+
   const useMountEffect = (fun) => useEffect(fun, [])
 
 	const callStartGame = () => {
@@ -100,6 +106,10 @@ const Tetris = (props) => {
 			}
 		}
 	};
+	useEffect(() => {
+		if (rows > 1)
+			mainSocket.emit('clearRow')
+	}, [rows])
 
 	const move = ({ keyCode }) => {
 		if (!gameOver) {
@@ -120,10 +130,7 @@ const Tetris = (props) => {
 	};
 
 	useInterval(() => {
-		mainSocket.on('addRow', () => {
-			addRow(stage)
-			updatePlayerPos({ x: 0, y: 0, collided: false })
-		})
+		
 		drop(rows, level, player, stage, setLevel, setDropTime, updatePlayerPos, setGameOver, mainSocket, start, setStart);
 	}, dropTime);
 useMountEffect(connect);
