@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 import { createStage } from '../helpers/gameHelpers';
 import {userSocket} from "../helpers/socket";
@@ -34,9 +34,8 @@ const Tetris = (props) => {
 	const { score, setScore, rows, setRows, level, setLevel } = useGameStatus(
 		rowsCleared
 	);
-
-	const startGame = () => {
-		// Reset everything
+	const startGame = useCallback(() => {
+    // Reset everything
 		setStage(createStage());
 		setDropTime(1000);
 		resetPlayer();
@@ -46,47 +45,47 @@ const Tetris = (props) => {
 		setScore(0);
 		setRows(0);
 		setLevel(1);
-	};
-
-	useEffect(() => {
-		console.log(newGame)
-		let test = props.room.split('[')
-		newGame.room = test[0][0] === '#' ? test[0].substr(1) : test[0]
-		const connect = async () => {
-			mainSocket = await userSocket(props.room);
-			mainSocket.off('updateUsers')
-			mainSocket.off('addRow')
-			mainSocket.off('startiguess')
-			mainSocket.off('deadUser')
-			mainSocket.off('setWinner')
-			mainSocket.on('updateUsers', (t) => {
-				newGame.users = t
-				if (newGame.users[0].id === mainSocket.id)
-					setHost(true)
-				setUser(newGame.users.find(e => e.id === mainSocket.id))
-			})
-			mainSocket.on('startiguess', () => {
-				mainSocket.emit('updatePlayer', stage)
-				newGame.left = [...newGame.users]
-				startGame()
-				setStart(true)
-			})
-			mainSocket.on('deadUser', (id) => {
-				newGame.left.splice(newGame.left.findIndex(e => e.id === id), 1)
-				if (newGame.left.length === 1) {
-					setGameOver(true)
-					setDropTime(null)
-					mainSocket.emit('winner', newGame.left[0])
-				}
-			})
-			mainSocket.on('setWinner', (nickname) => {
-				setStart(false)
-				mainSocket.emit('updatePlayer', stage)
-				setWinner(nickname)
-			})
-		}
-		connect()
-	}, [])
+  }, [resetPlayer, setLevel, setRows, setScore, setStage]);
+  
+  
+  const connect = useCallback(async () => {
+    if (!mainSocket) {
+      let test = props.room.split('[')
+      newGame.room = test[0][0] === '#' ? test[0].substr(1) : test[0]
+          mainSocket = await userSocket(props.room);
+          mainSocket.off('updateUsers')
+          mainSocket.off('addRow')
+          mainSocket.off('startiguess')
+          mainSocket.off('deadUser')
+          mainSocket.off('setWinner')
+          mainSocket.on('updateUsers', (t) => {
+            newGame.users = t
+            if (newGame.users[0].id === mainSocket.id)
+              setHost(true)
+            setUser(newGame.users.find(e => e.id === mainSocket.id))
+          })
+          mainSocket.on('startiguess', () => {
+            mainSocket.emit('updatePlayer', stage)
+            newGame.left = [...newGame.users]
+            startGame()
+            setStart(true)
+          })
+          mainSocket.on('deadUser', (id) => {
+            newGame.left.splice(newGame.left.findIndex(e => e.id === id), 1)
+            if (newGame.left.length === 1) {
+              setGameOver(true)
+              setDropTime(null)
+              mainSocket.emit('winner', newGame.left[0])
+            }
+          })
+          mainSocket.on('setWinner', (nickname) => {
+            setStart(false)
+            mainSocket.emit('updatePlayer', stage)
+            setWinner(nickname)
+          })
+    }
+  }, [props.room, stage, startGame])
+  const useMountEffect = (fun) => useEffect(fun, [])
 
 	const callStartGame = () => {
 		mainSocket.emit('start?', newGame.room)
@@ -127,6 +126,7 @@ const Tetris = (props) => {
 		})
 		drop(rows, level, player, stage, setLevel, setDropTime, updatePlayerPos, setGameOver, mainSocket, start, setStart);
 	}, dropTime);
+useMountEffect(connect);
 
 	return (
 		<StyledTetrisWrapper
@@ -160,7 +160,7 @@ const Tetris = (props) => {
 				</aside>{
 					!gameOver ?
 						<div id="stageContainer">
-							{newGame.left ? (newGame.users.map((value, index) => {
+              {newGame.left ? (newGame.users.map((value, index) => {
 								if (value.board && value.id !== mainSocket.id && newGame.left.find(e => e.id === value.id))
                   return <div key={index} style={{ width: "5vw", padding: "0 10px" }}><p>{value.nickname}</p><Stage type={1} stage={value.board} /></div>
                 return null
