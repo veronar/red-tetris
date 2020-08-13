@@ -86,7 +86,7 @@ const Tetris = (props) => {
 	}, [props.room, stage, startGame])
 
 	// eslint-disable-next-line
-	const useMountEffect = (fun) => useEffect(() => fun, [])
+	const useMountEffect = (fun) => useEffect(() => fun(), [])
 
 	const callStartGame = () => {
 		mainSocket.emit('start?', newGame.room)
