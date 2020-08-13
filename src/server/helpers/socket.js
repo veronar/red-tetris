@@ -54,7 +54,7 @@ exports.makeSocket = io => {
 		})
 		socket.on('disconnect', () => {
 			users.splice(users.findIndex(e => e.id == socket.id && e.room == room), 1)
-			io.to(room).emit('updateUsers', users.filter(e => e.room == room))
+			socket.to(room).emit('deadUser', socket.id)
 		})
 	})
 }
