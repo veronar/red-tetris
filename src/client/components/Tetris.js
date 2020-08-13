@@ -27,29 +27,40 @@ const Tetris = (props) => {
 	const [gameOver, setGameOver] = useState(false);
 	const [winner, setWinner] = useState(null);
 	const [host, setHost] = useState(false)
+	const [shapes, setShapes] = useState(null);
 	const [user, setUser] = useState(null)
 	const [start, setStart] = useState(false)
-	const { player, updatePlayerPos, resetPlayer, playerRotate } = usePlayer();
-	const { stage, setStage, rowsCleared, addRow } = useStage(player, resetPlayer, mainSocket);
+	const [shapeTrack, setShapeTrack] = useState(0)
+	const { player, updatePlayerPos, resetPlayer, playerRotate } = usePlayer(setShapeTrack);
+	const { stage, setStage, rowsCleared, addRow } = useStage(player, resetPlayer, mainSocket, shapes, shapeTrack);
 	const { score, setScore, rows, setRows, level, setLevel } = useGameStatus(
 		rowsCleared
 	);
-	const startGame = useCallback(() => {
-	
+	const startGame = useCallback(() => {		
 		// Reset everything
 		setStart(true)
 		setStage(createStage());
 		setDropTime(1000);
-		resetPlayer();
+		resetPlayer(shapes, shapeTrack);
 		setGameOver(false);
 		newGame.left = [...newGame.users]
 		setWinner(null)
 		setScore(0);
 		setRows(0);
 		setLevel(1);
-	}, [resetPlayer, setLevel, setRows, setScore, setStage]);
+	}, [resetPlayer, setLevel, setRows, setScore, setStage, shapes]);
 
+	useEffect(() => {
+		if (shapes) {
+			startGame()
+		}
+	}, [shapes, startGame])
+	useEffect(() => {
+		console.log(shapeTrack);
+		if (gameOver)
+			setShapeTrack(0)
 
+	}, [gameOver,shapeTrack, setShapeTrack])
 	const connect = useCallback(async () => {
 		if (!mainSocket) {
 			let test = props.room.split('[')
@@ -68,7 +79,11 @@ const Tetris = (props) => {
 			})
 			mainSocket.on('startiguess', () => {
 				mainSocket.emit('updatePlayer', stage)
-				startGame()
+				if (newGame.users[0] && newGame.users[0].id === mainSocket.id)
+					mainSocket.emit('receive shapes', props.room)
+			})
+			mainSocket.on('receive shapes', (shapes1) => {
+				setShapes(shapes1);	
 			})
 			mainSocket.on('deadUser', (id) => {
 				newGame.left.splice(newGame.left.findIndex(e => e.id === id), 1)
@@ -85,7 +100,7 @@ const Tetris = (props) => {
 			})
 		
 		}
-	}, [props.room, stage, startGame])
+	}, [props.room, stage])
 
 	// eslint-disable-next-line
 	const useMountEffect = (fun) => useEffect(() => {fun()}, [])

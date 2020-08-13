@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 import { createStage } from '../helpers/gameHelpers';
 
-export const useStage = (player, resetPlayer, mainSocket) => {
+export const useStage = (player, resetPlayer, mainSocket, shapes, shapeTrack) => {
 	const [stage, setStage] = useState(createStage());
 	const [rowsCleared, setRowsCleared] = useState(0);
 
@@ -51,10 +51,9 @@ export const useStage = (player, resetPlayer, mainSocket) => {
 					}
 				});
 			});
-
 			// then check if collided
 			if (player.collided) {
-				resetPlayer();
+				resetPlayer(shapes, shapeTrack);
 				let temp = sweepRows(newStage)
 				mainSocket.emit('updatePlayer', temp)
 				return temp;
@@ -64,7 +63,7 @@ export const useStage = (player, resetPlayer, mainSocket) => {
 		};
 
 		setStage((prev) => updateStage(prev));
-	}, [player, resetPlayer, mainSocket, rowsCleared]);
+	}, [player, resetPlayer, mainSocket, rowsCleared, shapeTrack, shapes]);
 
 	return { stage, setStage, rowsCleared, addRow };
 };

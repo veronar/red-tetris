@@ -5,7 +5,7 @@ import  {StyledCell} from './styles/StyledCell';
 
 export{
 	StyledDisplay,
-	StyledCell
+	StyledCell,
 	// Cell
 	// StyledStage,
 	// StyledStartButton,

@@ -5,7 +5,7 @@ import { STAGE_WIDTH, checkCollision } from '../helpers/gameHelpers';
 const Piece = require('../../server/models/Piece').Piece
 let newPiece = new Piece()
 
-export const usePlayer = () => {
+export const usePlayer = (setShapeTrack) => {
 	const [player, setPlayer] = useState({
 		pos: { x: 0, y: 0 },
 		tetromino: newPiece.TETROMINOS[0].shape,
@@ -38,10 +38,10 @@ export const usePlayer = () => {
 				return;
 			}
 		}
-
+		
 		setPlayer(clonedPlayer);
 	};
-
+	
 	const updatePlayerPos = ({ x, y, collided }) => {
 		setPlayer((prev) => ({
 			...prev,
@@ -49,13 +49,19 @@ export const usePlayer = () => {
 			collided,
 		}));
 	};
-
-	const resetPlayer = useCallback(() => {
+	const resetPlayer = useCallback((shapes, shapeTrack) => {
+		console.log(shapeTrack)
 		setPlayer({
 			pos: { x: STAGE_WIDTH / 2 - 2, y: 0 },
-			tetromino: newPiece.randomTetromino().shape,
+			tetromino: shapes[shapeTrack].shape,
 			collided: false,
 		});
+		if (shapeTrack+1 > shapes.length - 1) {
+			setShapeTrack(0)
+		}
+		else {
+			setShapeTrack(shapeTrack+1)
+		}
 	}, []);
 
 	return { player, updatePlayerPos, resetPlayer, playerRotate };

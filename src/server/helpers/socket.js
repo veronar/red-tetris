@@ -1,5 +1,6 @@
 exports.makeSocket = io => {
-	let users = [];
+	const generateShapes = require('./pieceHelper')
+	let users = []
 	const Player = require('../models/Player').Player;
 	io.on('connection', function (socket) {
 		let room = null;
@@ -42,6 +43,9 @@ exports.makeSocket = io => {
 				if (clients.length - 2 == 0)
 					socket.to(Object.keys(socket.rooms)[0]).emit('endgame')
 			});
+		})
+		socket.on('receive shapes', (room) => {
+			io.to(room).emit('receive shapes' ,generateShapes())
 		})
 		socket.on('start?', (r) => {
 			io.to(r).emit('startiguess')
