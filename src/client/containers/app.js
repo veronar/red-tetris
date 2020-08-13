@@ -8,8 +8,6 @@ import {
 const App = () => {
 	const Test = () => {
 		let room = window.location.href.split('/')[3];
-		if (room[0])
-			room = room.substr(1);
 		return <div className="App">
 			<Tetris room={room} />
 		</div>
