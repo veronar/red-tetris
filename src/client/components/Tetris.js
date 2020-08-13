@@ -35,6 +35,7 @@ const Tetris = (props) => {
 		rowsCleared
 	);
 	const startGame = useCallback(() => {
+	
 		// Reset everything
 		setStart(true)
 		setStage(createStage());
@@ -82,11 +83,12 @@ const Tetris = (props) => {
 				mainSocket.emit('updatePlayer', stage)
 				setWinner(nickname)
 			})
+		
 		}
 	}, [props.room, stage, startGame])
 
 	// eslint-disable-next-line
-	const useMountEffect = (fun) => useEffect(() => fun(), [])
+	const useMountEffect = (fun) => useEffect(() => {fun()}, [])
 
 	const callStartGame = () => {
 		mainSocket.emit('start?', newGame.room)
@@ -121,7 +123,7 @@ const Tetris = (props) => {
 	};
 
 	useInterval(() => {
-		mainSocket.on('addRow', () => {
+			mainSocket.on('addRow', () => {
 			addRow(stage)
 			updatePlayerPos({ x: 0, y: 0, collided: false })
 		})
