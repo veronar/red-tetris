@@ -83,13 +83,8 @@ const Tetris = (props) => {
 				mainSocket.emit('updatePlayer', stage)
 				setWinner(nickname)
 			})
-			mainSocket.on('addRow', () => {
-				addRow(stage)
-				updatePlayerPos({ x: 0, y: 0, collided: false })
-			})
 		}
-	}, [props.room, stage, startGame, addRow, updatePlayerPos])
-
+	}, [props.room, stage, startGame])
 
 	const useMountEffect = (fun) => useEffect(fun, [])
 
@@ -106,10 +101,6 @@ const Tetris = (props) => {
 			}
 		}
 	};
-	useEffect(() => {
-		if (rows > 1)
-			mainSocket.emit('clearRow')
-	}, [rows])
 
 	const move = ({ keyCode }) => {
 		if (!gameOver) {
@@ -130,7 +121,10 @@ const Tetris = (props) => {
 	};
 
 	useInterval(() => {
-
+		mainSocket.on('addRow', () => {
+			addRow(stage)
+			updatePlayerPos({ x: 0, y: 0, collided: false })
+		})
 		drop(rows, level, player, stage, setLevel, setDropTime, updatePlayerPos, setGameOver, mainSocket, start, setStart);
 	}, dropTime);
 	useMountEffect(connect);

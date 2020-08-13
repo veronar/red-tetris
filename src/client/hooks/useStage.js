@@ -18,16 +18,16 @@ export const useStage = (player, resetPlayer, mainSocket) => {
 		setStage(stage)
 	}
 	useEffect(() => {
+		let counter = 0;
 		setRowsCleared(0);
 		const sweepRows = (newStage) =>
 			newStage.reduce((ack, row) => {
 				if (row.findIndex((cell) => cell[0] === 0 || cell[0] === 'B') === -1) {
 					setRowsCleared((prev) => prev + 1);
 					ack.unshift(new Array(newStage[0].length).fill([0, 'clear']));
-					// counter++
-					// console.log(rowsCleared)
-					// if (counter > 1)
-					// 	mainSocket.emit('clearRow')
+					counter++;
+					if (counter > 1)
+						mainSocket.emit('clearRow')
 					return ack;
 				}
 				ack.push(row);
@@ -64,7 +64,7 @@ export const useStage = (player, resetPlayer, mainSocket) => {
 		};
 
 		setStage((prev) => updateStage(prev));
-	}, [player, resetPlayer, mainSocket]);
+	}, [player, resetPlayer, mainSocket, rowsCleared]);
 
 	return { stage, setStage, rowsCleared, addRow };
 };
