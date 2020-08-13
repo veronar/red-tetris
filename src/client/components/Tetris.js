@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 
 import { createStage } from '../helpers/gameHelpers';
-import {userSocket} from "../helpers/socket";
+import { userSocket } from "../helpers/socket";
 
 // Styled Component
 import { StyledTetrisWrapper, StyledTetris } from './styles/StyledTetris';
@@ -30,12 +30,13 @@ const Tetris = (props) => {
 	const [user, setUser] = useState(null)
 	const [start, setStart] = useState(false)
 	const { player, updatePlayerPos, resetPlayer, playerRotate } = usePlayer();
-const { stage, setStage, rowsCleared, addRow } = useStage(player, resetPlayer, mainSocket);
+	const { stage, setStage, rowsCleared, addRow } = useStage(player, resetPlayer, mainSocket);
 	const { score, setScore, rows, setRows, level, setLevel } = useGameStatus(
 		rowsCleared
 	);
 	const startGame = useCallback(() => {
-    // Reset everything
+		// Reset everything
+		setStart(true)
 		setStage(createStage());
 		setDropTime(1000);
 		resetPlayer();
@@ -45,53 +46,52 @@ const { stage, setStage, rowsCleared, addRow } = useStage(player, resetPlayer, m
 		setScore(0);
 		setRows(0);
 		setLevel(1);
-  }, [resetPlayer, setLevel, setRows, setScore, setStage]);
-  
+	}, [resetPlayer, setLevel, setRows, setScore, setStage]);
 
-  const connect = useCallback(async () => {
-    if (!mainSocket) {
-      let test = props.room.split('[')
-      newGame.room = test[0][0] === '#' ? test[0].substr(1) : test[0]
-          mainSocket = await userSocket(props.room);
-          mainSocket.off('updateUsers')
-          mainSocket.off('addRow')
-          mainSocket.off('startiguess')
-          mainSocket.off('deadUser')
-          mainSocket.off('setWinner')
-          mainSocket.on('updateUsers', (t) => {
-            newGame.users = t
-            if (newGame.users[0].id === mainSocket.id)
-              setHost(true)
-            setUser(newGame.users.find(e => e.id === mainSocket.id))
-          })
-          mainSocket.on('startiguess', () => {
-            mainSocket.emit('updatePlayer', stage)
-            newGame.left = [...newGame.users]
-            startGame()
-            setStart(true)
-          })
-          mainSocket.on('deadUser', (id) => {
-            newGame.left.splice(newGame.left.findIndex(e => e.id === id), 1)
-            if (newGame.left.length === 1) {
-              setGameOver(true)
-              setDropTime(null)
-              mainSocket.emit('winner', newGame.left[0])
-            }
-          })
-          mainSocket.on('setWinner', (nickname) => {
-            setStart(false)
-            mainSocket.emit('updatePlayer', stage)
-            setWinner(nickname)
-		  })
-		  mainSocket.on('addRow', () => {
-			addRow(stage)
-			updatePlayerPos({ x: 0, y: 0, collided: false })
-		})
-    }
-  }, [props.room, stage, startGame, addRow, updatePlayerPos])
-  
 
-  const useMountEffect = (fun) => useEffect(fun, [])
+	const connect = useCallback(async () => {
+		if (!mainSocket) {
+			let test = props.room.split('[')
+			newGame.room = test[0][0] === '#' ? test[0].substr(1) : test[0]
+			mainSocket = await userSocket(props.room);
+			mainSocket.off('updateUsers')
+			mainSocket.off('addRow')
+			mainSocket.off('startiguess')
+			mainSocket.off('deadUser')
+			mainSocket.off('setWinner')
+			mainSocket.on('updateUsers', (t) => {
+				newGame.users = t
+				if (newGame.users[0] && newGame.users[0].id === mainSocket.id)
+					setHost(true)
+				setUser(newGame.users.find(e => e.id === mainSocket.id))
+			})
+			mainSocket.on('startiguess', () => {
+				mainSocket.emit('updatePlayer', stage)
+				newGame.left = [...newGame.users]
+				startGame()
+			})
+			mainSocket.on('deadUser', (id) => {
+				newGame.left.splice(newGame.left.findIndex(e => e.id === id), 1)
+				if (newGame.left.length === 1) {
+					setGameOver(true)
+					setDropTime(null)
+					mainSocket.emit('winner', newGame.left[0])
+				}
+			})
+			mainSocket.on('setWinner', (nickname) => {
+				setStart(false)
+				mainSocket.emit('updatePlayer', stage)
+				setWinner(nickname)
+			})
+			mainSocket.on('addRow', () => {
+				addRow(stage)
+				updatePlayerPos({ x: 0, y: 0, collided: false })
+			})
+		}
+	}, [props.room, stage, startGame, addRow, updatePlayerPos])
+
+
+	const useMountEffect = (fun) => useEffect(fun, [])
 
 	const callStartGame = () => {
 		mainSocket.emit('start?', newGame.room)
@@ -130,10 +130,10 @@ const { stage, setStage, rowsCleared, addRow } = useStage(player, resetPlayer, m
 	};
 
 	useInterval(() => {
-		
+
 		drop(rows, level, player, stage, setLevel, setDropTime, updatePlayerPos, setGameOver, mainSocket, start, setStart);
 	}, dropTime);
-useMountEffect(connect);
+	useMountEffect(connect);
 
 	return (
 		<StyledTetrisWrapper
@@ -157,7 +157,7 @@ useMountEffect(connect);
 								<Display id="leftDisplay" text={`Left: ${newGame.left.length}`} />
 							</div>
 						)}
-					{newGame.start
+					{start
 						? ''
 						: (host
 							? <StartButton callback={callStartGame} />
@@ -167,10 +167,10 @@ useMountEffect(connect);
 				</aside>{
 					!gameOver ?
 						<div id="stageContainer">
-              {newGame.left ? (newGame.users.map((value, index) => {
+							{newGame.left ? (newGame.users.map((value, index) => {
 								if (value.board && value.id !== mainSocket.id && newGame.left.find(e => e.id === value.id))
-                  return <div key={index} style={{ width: "5vw", padding: "0 10px" }}><p>{value.nickname}</p><Stage type={1} stage={value.board} /></div>
-                return null
+									return <div key={index} style={{ width: "8vw", padding: "0 10px" }}><p>{value.nickname}</p><Stage type={1} stage={value.board} /></div>
+								return null
 							})) : ''}
 						</div> : ''
 				}
