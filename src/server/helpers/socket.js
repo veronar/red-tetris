@@ -1,5 +1,5 @@
 exports.makeSocket = io => {
-	let users = []
+	let users = [];
 	const Player = require('../models/Player').Player;
 	io.on('connection', function (socket) {
 		let room = null;
@@ -11,7 +11,7 @@ exports.makeSocket = io => {
 			}
 		})
 		socket.on('join', (r) => {
-			let temp = r.split('[')
+			let temp = r.split('[');
 			room = temp[0][0] == '#' ? temp[0].substr(1) : temp[0]
 			nickname = temp[1] ? temp[1].substr(0, temp[1].length - 1) : 'Anon'
 			socket.join(room)
@@ -19,10 +19,6 @@ exports.makeSocket = io => {
 			users.push(what)
 			what = null
 			io.to(room).emit('updateUsers', users.filter(e => e.room == room))
-
-			// Total  users connected to room
-			// io.of('/').in(room).clients(function (error, clients) {
-			// });
 		})
 		socket.on('updatePlayer', (p) => {
 			users = users.map(e => {
@@ -33,7 +29,6 @@ exports.makeSocket = io => {
 			io.to(room).emit('updateUsers', users.filter(e => e.room == room))
 		})
 		socket.on('clearRow', () => {
-			console.log('in clear row')
 			socket.to(room).emit('addRow')
 		})
 		socket.on('died', (id) => {
@@ -41,7 +36,6 @@ exports.makeSocket = io => {
 		})
 		socket.on('winner', (winner) => {
 			socket.nsp.to(room).emit('setWinner', winner.nickname);
-			// socket.to(room).emit('setWinner', winner.nickname)
 		})
 		socket.on('endgame', () => {
 			io.of('/').in(room).clients(function (error, clients) {
