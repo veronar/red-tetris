@@ -67,7 +67,6 @@ const Tetris = (props) => {
 			})
 			mainSocket.on('startiguess', () => {
 				mainSocket.emit('updatePlayer', stage)
-				newGame.left = [...newGame.users]
 				startGame()
 			})
 			mainSocket.on('deadUser', (id) => {
@@ -163,7 +162,7 @@ const Tetris = (props) => {
 						<div id="stageContainer">
 							{newGame.left ? (newGame.users.map((value, index) => {
 								if (value.board && value.id !== mainSocket.id && newGame.left.find(e => e.id === value.id))
-									return <div key={index} style={{ width: "8vw", padding: "0 10px" }}><p>{value.nickname}</p><Stage type={1} stage={value.board} /></div>
+									return <div key={index} style={{ padding: "0 10px" }}><p>{value.nickname}</p><Stage type={1} stage={value.board} /></div>
 								return null
 							})) : ''}
 						</div> : ''
