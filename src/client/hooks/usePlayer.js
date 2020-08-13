@@ -50,7 +50,6 @@ export const usePlayer = (setShapeTrack) => {
 		}));
 	};
 	const resetPlayer = useCallback((shapes, shapeTrack) => {
-		console.log(shapeTrack)
 		setPlayer({
 			pos: { x: STAGE_WIDTH / 2 - 2, y: 0 },
 			tetromino: shapes[shapeTrack].shape,
@@ -62,7 +61,7 @@ export const usePlayer = (setShapeTrack) => {
 		else {
 			setShapeTrack(shapeTrack+1)
 		}
-	}, []);
+	}, [setShapeTrack]);
 
 	return { player, updatePlayerPos, resetPlayer, playerRotate };
 };

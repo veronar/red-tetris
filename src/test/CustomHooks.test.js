@@ -22,7 +22,6 @@ describe("Testing Tetris hooks", () => {
   beforeEach(() => {
     const stub = jest.fn();
     result = renderHook(() => usePlayer(stub)).result;
-    console.log('result.current:', result.current.resetPlayer)
     act(() => {
       result.current.resetPlayer([{
         shape: [

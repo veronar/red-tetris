@@ -48,6 +48,7 @@ const Tetris = (props) => {
 		setScore(0);
 		setRows(0);
 		setLevel(1);
+		// eslint-disable-next-line
 	}, [resetPlayer, setLevel, setRows, setScore, setStage, shapes]);
 
 	useEffect(() => {
@@ -56,7 +57,6 @@ const Tetris = (props) => {
 		}
 	}, [shapes, startGame])
 	useEffect(() => {
-		console.log(shapeTrack);
 		if (gameOver)
 			setShapeTrack(0)
 
