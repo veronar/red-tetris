@@ -7,14 +7,9 @@ export const useStage = (player, resetPlayer, mainSocket, shapes, shapeTrack) =>
 	const [rowsCleared, setRowsCleared] = useState(0);
 
 	const addRow = (stage) => {
-		for (let i = 1; i < stage.length; i++) {
-			for (let j = 0; j < stage[i].length; j++) {
-				stage[i - 1][j] = stage[i][j]
-				if (i === 19) {
-					stage[i][j] = ['B', 'test']
-				}
-			}
-		}
+		for (let i = 1; i < stage.length; i++)
+			stage[i - 1] = [...stage[i]]
+		stage[stage.length - 1] = new Array(stage[0].length).fill(['B', 'test'])
 		setStage(stage)
 	}
 	useEffect(() => {
@@ -30,6 +25,7 @@ export const useStage = (player, resetPlayer, mainSocket, shapes, shapeTrack) =>
 						mainSocket.emit('clearRow')
 					return ack;
 				}
+				console.log(ack)
 				ack.push(row);
 				return ack;
 			}, []);

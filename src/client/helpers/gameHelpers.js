@@ -1,4 +1,4 @@
-export const STAGE_WIDTH = 12; // PDF says width must be 10, change later
+export const STAGE_WIDTH = 10; // PDF says width must be 10, change later
 export const STAGE_HEIGHT = 20;
 
 export const createStage = () =>
@@ -18,11 +18,11 @@ export const checkCollision = (player, stage, { x: moveX, y: moveY }) => {
 					!stage[y + player.pos.y + moveY][x + player.pos.x + moveX] ||
 					// 4. check that cell moving to isnt clear
 					stage[y + player.pos.y + moveY][x + player.pos.x + moveX][1] !==
-						'clear'
+					'clear'
 				) {
 					return true;
 				}
-				
+
 			}
 		}
 	}
