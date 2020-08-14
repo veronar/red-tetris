@@ -23,6 +23,15 @@ export const usePlayer = (setShapeTrack) => {
 		return rotatedTetro.reverse();
 	};
 
+	const playerFall = (stage) => {
+		const clonedPlayer = JSON.parse(JSON.stringify(player));
+		while (!checkCollision(clonedPlayer, stage, { x: 0, y: 0 })) {
+			clonedPlayer.pos.y++
+		}
+		clonedPlayer.pos.y--
+		setPlayer(clonedPlayer);
+	}
+
 	const playerRotate = (stage, dir) => {
 		const clonedPlayer = JSON.parse(JSON.stringify(player));
 		clonedPlayer.tetromino = rotate(clonedPlayer.tetromino, dir);
@@ -38,10 +47,9 @@ export const usePlayer = (setShapeTrack) => {
 				return;
 			}
 		}
-		
 		setPlayer(clonedPlayer);
 	};
-	
+
 	const updatePlayerPos = ({ x, y, collided }) => {
 		setPlayer((prev) => ({
 			...prev,
@@ -55,13 +63,13 @@ export const usePlayer = (setShapeTrack) => {
 			tetromino: shapes[shapeTrack].shape,
 			collided: false,
 		});
-		if (shapeTrack+1 > shapes.length - 1) {
+		if (shapeTrack + 1 > shapes.length - 1) {
 			setShapeTrack(0)
 		}
 		else {
-			setShapeTrack(shapeTrack+1)
+			setShapeTrack(shapeTrack + 1)
 		}
 	}, [setShapeTrack]);
 
-	return { player, updatePlayerPos, resetPlayer, playerRotate };
+	return { player, updatePlayerPos, resetPlayer, playerRotate, playerFall };
 };

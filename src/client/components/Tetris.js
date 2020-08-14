@@ -31,12 +31,12 @@ const Tetris = (props) => {
 	const [user, setUser] = useState(null)
 	const [start, setStart] = useState(false)
 	const [shapeTrack, setShapeTrack] = useState(0)
-	const { player, updatePlayerPos, resetPlayer, playerRotate } = usePlayer(setShapeTrack);
+	const { player, updatePlayerPos, resetPlayer, playerRotate, playerFall } = usePlayer(setShapeTrack);
 	const { stage, setStage, rowsCleared, addRow } = useStage(player, resetPlayer, mainSocket, shapes, shapeTrack);
 	const { score, setScore, rows, setRows, level, setLevel } = useGameStatus(
 		rowsCleared
 	);
-	const startGame = useCallback(() => {		
+	const startGame = useCallback(() => {
 		// Reset everything
 		setStart(true)
 		setStage(createStage());
@@ -60,7 +60,7 @@ const Tetris = (props) => {
 		if (gameOver)
 			setShapeTrack(0)
 
-	}, [gameOver,shapeTrack, setShapeTrack])
+	}, [gameOver, shapeTrack, setShapeTrack])
 	const connect = useCallback(async () => {
 		if (!mainSocket) {
 			let test = props.room.split('[')
@@ -83,7 +83,7 @@ const Tetris = (props) => {
 					mainSocket.emit('receive shapes', props.room)
 			})
 			mainSocket.on('receive shapes', (shapes1) => {
-				setShapes(shapes1);	
+				setShapes(shapes1);
 			})
 			mainSocket.on('deadUser', (id) => {
 				newGame.left.splice(newGame.left.findIndex(e => e.id === id), 1)
@@ -98,12 +98,12 @@ const Tetris = (props) => {
 				mainSocket.emit('updatePlayer', stage)
 				setWinner(nickname)
 			})
-		
+
 		}
 	}, [props.room, stage])
 
 	// eslint-disable-next-line
-	const useMountEffect = (fun) => useEffect(() => {fun()}, [])
+	const useMountEffect = (fun) => useEffect(() => { fun() }, [])
 
 	const callStartGame = () => {
 		mainSocket.emit('start?', newGame.room)
@@ -120,11 +120,15 @@ const Tetris = (props) => {
 
 	const move = ({ keyCode }) => {
 		if (!gameOver) {
+			// 32 = spacebar
 			// 37 = left arrow, -1 on x axis
 			// 39 = right arrow, +1 on x axis
 			// 40 = down arrow
 			// 38 = up arrow, rotate
-			if (keyCode === 37) {
+			if (keyCode === 32) {
+				playerFall(stage)
+			}
+			else if (keyCode === 37) {
 				movePlayer(-1, updatePlayerPos, player, stage);
 			} else if (keyCode === 39) {
 				movePlayer(1, updatePlayerPos, player, stage);
@@ -137,7 +141,7 @@ const Tetris = (props) => {
 	};
 
 	useInterval(() => {
-			mainSocket.on('addRow', () => {
+		mainSocket.on('addRow', () => {
 			addRow(stage)
 			updatePlayerPos({ x: 0, y: 0, collided: false })
 		})
