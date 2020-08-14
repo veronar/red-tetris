@@ -25,7 +25,6 @@ export const useStage = (player, resetPlayer, mainSocket, shapes, shapeTrack) =>
 						mainSocket.emit('clearRow')
 					return ack;
 				}
-				console.log(ack)
 				ack.push(row);
 				return ack;
 			}, []);
