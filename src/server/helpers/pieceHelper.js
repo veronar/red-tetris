@@ -1,13 +1,14 @@
-const {randomTetromino} = require( '../../client/helpers/tetrominos');
-
+const { randomTetromino } = require("../../client/helpers/tetrominos");
+const { Piece } = require("../models/Piece");
 
 const generateShapes = () => {
 	let shapes = [];
-	let i = 0
+	Piece;
+	let i = 0;
 	while (i < 50) {
-			shapes.push(randomTetromino())
-			i++;
+		shapes.push(new Piece().randomTetromino());
+		i++;
 	}
 	return shapes;
-}
-module.exports = generateShapes
+};
+module.exports = generateShapes;

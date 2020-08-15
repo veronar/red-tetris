@@ -1,9 +1,7 @@
 class Game {
-	constructor() {
-		this.users = [];
-		this.left = [];
-		this.room = null;
+	constructor(room) {
+		this.room = room;
 	}
 }
 
-module.exports.Game = Game
+module.exports.Game = Game;
