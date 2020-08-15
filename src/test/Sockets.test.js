@@ -105,6 +105,21 @@ describe("basic socket.io example", () => {
       done();
     }, 50);
   });
+  test("should test generate shapes event", (done) => {
+    let result;
+    socket.emit("join", "#12[test]");
+    socket.once("updateUsers", (thing) => {
+      socket.emit("receive shapes");
+      socket.once("receive shapes", (shapes) => {
+        if (shapes) result = true;
+        done();
+      });
+    });
+    setTimeout(() => {
+      expect(result).toBeFalsy();
+      done();
+    }, 50);
+  });
   test("should test socket.io ping event", (done) => {
     socket.emit("action", { type: "test" });
     let result;

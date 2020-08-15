@@ -23,14 +23,21 @@ describe("Testing Tetris hooks", () => {
     const stub = jest.fn();
     result = renderHook(() => usePlayer(stub)).result;
     act(() => {
-      result.current.resetPlayer([{
-        shape: [
-          ['Z', 'Z', 0],
-          [0, 'Z', 'Z'],
-          [0, 0, 0],
+      result.current.resetPlayer(
+        [
+          {
+            shape: [
+              ["Z", "Z", 0],
+              [0, "Z", "Z"],
+              [0, 0, 0],
+            ],
+            color: "227, 78, 78",
+          },
         ],
-        color: '227, 78, 78',
-      }], 0);    });
+        0,
+        jest.fn()
+      );
+    });
     player = result.current;
     result = renderHook(() =>
       useStage(player.player, player.resetPlayer, mainSocket)
@@ -39,39 +46,66 @@ describe("Testing Tetris hooks", () => {
     // result = renderHook(() => useGameStatus(stage.rowsCleared));
     // gameStatus = result.current;
   });
-
   describe("test usePlayer", () => {
     it("should rotate player", () => {
       let stub = jest.fn();
       act(() => {
-        player.resetPlayer([{
-		shape: [
-			['Z', 'Z', 0],
-			[0, 'Z', 'Z'],
-			[0, 0, 0],
-		],
-		color: '227, 78, 78',
-	}], 0);
+        player.resetPlayer(
+          [
+            {
+              shape: [
+                ["Z", "Z", 0],
+                [0, "Z", "Z"],
+                [0, 0, 0],
+              ],
+              color: "227, 78, 78",
+            },
+          ],
+          0,
+          jest.fn()
+        );
       });
       let initPlayer = {
         ...player.player,
         tetromino: tetrominosHelper.TETROMINOS["J"].shape,
       };
       act(() => {
-        player.playerRotate({}, 1);
+        player.playerRotate(
+          stage.stage,
+          1,
+          gameHelpers.checkCollision,
+          player.rotate,
+          player.player,
+          player.setPlayer
+        );
       });
       expect(player.player.tetromino).not.toEqual(initPlayer.tetromino);
     });
     it("should not rotate player", () => {
       const { result } = renderHook(() => usePlayer(jest.fn()));
+      let stub = jest.fn();
       const checkCollisionSpy = jest
         .spyOn(gameHelpers, "checkCollision")
         .mockImplementation(() => {
           return true;
         });
+      act(() => {
+        result.current.setPlayer({
+          pos: { x: 0, y: 0 },
+          tetromino: tetrominosHelper.TETROMINOS["J"].shape,
+          collided: false,
+        });
+      });
       let initPlayer = { ...result.current.player };
       act(() => {
-        result.current.playerRotate(stage.stage, 1);
+        result.current.playerRotate(
+          stage.stage,
+          1,
+          gameHelpers.checkCollision,
+          result.current.rotate,
+          result.current.player,
+          result.current.setPlayer
+        );
       });
       expect(checkCollisionSpy).toHaveBeenCalled();
       expect(result.current.player.tetromino).toEqual(initPlayer.tetromino);
@@ -80,11 +114,14 @@ describe("Testing Tetris hooks", () => {
       const { result } = renderHook(() => usePlayer(jest.fn()));
       let initPlayer;
       act(() => {
-        result.current.resetPlayer([{shape: 'fdf'}], 0);
+        result.current.resetPlayer([{ shape: "fdf" }], 0, jest.fn());
       });
       initPlayer = { ...result.current.player };
       act(() => {
-        result.current.updatePlayerPos({ x: 0, y: 0, collided: true });
+        result.current.updatePlayerPos(
+          { x: 0, y: 0, collided: true },
+          result.current.setPlayer
+        );
       });
       initPlayer.pos.x += 0;
       initPlayer.pos.y += 0;
@@ -116,7 +153,7 @@ describe("Testing Tetris hooks", () => {
     it("should do something", () => {
       jest.useFakeTimers();
       const stub = jest.fn();
-      renderHook(() => useInterval(stub, 1));
+      renderHook(() => useInterval(stub, mainSocket, jest.fn(), jest.fn(), 1));
       jest.advanceTimersByTime(50);
       expect(stub).toHaveBeenCalled();
     });

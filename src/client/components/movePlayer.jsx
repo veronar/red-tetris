@@ -78,7 +78,9 @@ export const playerRotation = (
   dir,
   playerRotateFunc,
   checkCollision,
-  rotate
+  rotate,
+  player,
+  setPlayer
 ) => {
-  playerRotateFunc(stage, dir, checkCollision, rotate);
+  playerRotateFunc(stage, dir, checkCollision, rotate, player, setPlayer);
 };

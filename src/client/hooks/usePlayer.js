@@ -32,7 +32,14 @@ export const usePlayer = (setShapeTrack) => {
     setPlayer(clonedPlayer);
   };
 
-  const playerRotate = (stage, dir, checkCollision, rotate) => {
+  const playerRotate = (
+    stage,
+    dir,
+    checkCollision,
+    rotate,
+    player,
+    setPlayer
+  ) => {
     const clonedPlayer = JSON.parse(JSON.stringify(player));
     clonedPlayer.tetromino = rotate(clonedPlayer.tetromino, dir);
 

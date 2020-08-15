@@ -127,7 +127,8 @@ describe("tests tetris", () => {
       -1,
       expect.any(Function),
       expect.any(Object),
-      expect.any(Array)
+      expect.any(Array),
+      expect.any(Function)
     );
     wrapper.simulate("keyDown", { keyCode: 39 });
     wrapper.simulate("keyUp", { keycode: 39 });
@@ -135,7 +136,8 @@ describe("tests tetris", () => {
       1,
       expect.any(Function),
       expect.any(Object),
-      expect.any(Array)
+      expect.any(Array),
+      expect.any(Function)
     );
     wrapper.simulate("keyDown", { keyCode: 40 });
     wrapper.simulate("keyUp", { keycode: 40 });
@@ -192,15 +194,19 @@ describe("tests tetris helpers", () => {
       mockSetGameOver,
       { emit: jest.fn() },
       jest.fn(),
+      jest.fn(),
       jest.fn()
     );
     expect(mockSetGameOver).toHaveBeenCalledWith(true);
     expect(mockSetDropTime).toHaveBeenCalledWith(null);
-    expect(mockUpdatePlayerPos).toHaveBeenCalledWith({
-      x: 0,
-      y: 0,
-      collided: true,
-    });
+    expect(mockUpdatePlayerPos).toHaveBeenCalledWith(
+      {
+        x: 0,
+        y: 0,
+        collided: true,
+      },
+      expect.any(Function)
+    );
   });
   it("tests move player if player has collided", () => {
     const mockUpdatePlayerPos = jest.fn();

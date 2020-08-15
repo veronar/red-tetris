@@ -246,7 +246,15 @@ const Tetris = (props) => {
           setPlayer
         );
       } else if (keyCode === 38) {
-        playerRotation(stage, 1, playerRotate, checkCollision, rotate);
+        playerRotation(
+          stage,
+          1,
+          playerRotate,
+          checkCollision,
+          rotate,
+          player,
+          setPlayer
+        );
       }
     }
   };
