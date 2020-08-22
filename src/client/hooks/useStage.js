@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 
 import { createStage } from "../helpers/gameHelpers";
+import { socketEmit } from "../middleware/socket";
 
 export const useStage = (
   player,
@@ -27,7 +28,7 @@ export const useStage = (
           setRowsCleared((prev) => prev + 1);
           ack.unshift(new Array(newStage[0].length).fill([0, "clear"]));
           counter++;
-          if (counter > 1) mainSocket.emit("clearRow");
+          if (counter > 1) socketEmit(mainSocket, "clearRow");
           return ack;
         }
         ack.push(row);
@@ -61,7 +62,7 @@ export const useStage = (
       if (player.collided) {
         resetPlayer(shapes, shapeTrack, setPlayer);
         let temp = sweepRows(newStage, mainSocket);
-        mainSocket.emit("updatePlayer", temp);
+        socketEmit(mainSocket,"updatePlayer", temp);
         return temp;
       }
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 
 import { createStage, checkCollision } from "../helpers/gameHelpers";
-import { userSocket } from "../helpers/socket";
+import { userSocket, socketOff, socketOn, socketEmit } from "../middleware/socket";
 
 // Styled Component
 import { StyledTetrisWrapper, StyledTetris } from "./styles/StyledTetris";
@@ -120,26 +120,27 @@ const Tetris = (props) => {
 				let test = props.room.split("[");
 				newGame.room = test[0][0] === "#" ? test[0].substr(1) : test[0];
 				mainSocket = await userSocket(props.room);
-				mainSocket.off("updateUsers");
-				mainSocket.off("addRow");
-				mainSocket.off("startiguess");
-				mainSocket.off("deadUser");
-				mainSocket.off("setWinner");
-				mainSocket.on("updateUsers", (t) => {
+				socketOff(mainSocket, "updateUsers")
+				socketOff(mainSocket, "updateUsers");
+				socketOff(mainSocket, "addRow");
+				socketOff(mainSocket, "startiguess");
+				socketOff(mainSocket, "deadUser");
+				socketOff(mainSocket, "setWinner");
+				socketOn(mainSocket, "updateUsers", (t) => {
 					newGame.users = t;
 					if (newGame.users[0] && newGame.users[0].id === mainSocket.id)
 						setHost(true);
 					setUser(newGame.users.find((e) => e.id === mainSocket.id));
 				});
-				mainSocket.on("startiguess", () => {
-					mainSocket.emit("updatePlayer", stage);
+				socketOn(mainSocket, "startiguess", () => {
+					socketEmit(mainSocket, "updatePlayer", stage);
 					if (newGame.users[0] && newGame.users[0].id === mainSocket.id)
-						mainSocket.emit("receive shapes", props.room);
+						socketEmit(mainSocket, "receive shapes", props.room);
 				});
-				mainSocket.on("receive shapes", (shapes1) => {
+				socketOn(mainSocket, "receive shapes", (shapes1) => {
 					setShapes(shapes1);
 				});
-				mainSocket.on("deadUser", (id) => {
+				socketOn(mainSocket, "deadUser", (id) => {
 					newGame.left.splice(
 						newGame.left.findIndex((e) => e.id === id),
 						1
@@ -147,12 +148,12 @@ const Tetris = (props) => {
 					if (newGame.left.length === 1) {
 						setGameOver(true);
 						setDropTime(null);
-						mainSocket.emit("winner", newGame.left[0]);
+						socketEmit(mainSocket, "winner", newGame.left[0]);
 					}
 				});
-				mainSocket.on("setWinner", (nickname) => {
+				socketOn(mainSocket, "setWinner", (nickname) => {
 					setStart(false);
-					mainSocket.emit("updatePlayer", stage);
+					socketEmit(mainSocket, "updatePlayer", stage);
 					setWinner(nickname);
 				});
 			}
@@ -188,7 +189,7 @@ const Tetris = (props) => {
 		}, []);
 
 	const callStartGame = (mainSocket, setStart, newGame) => {
-		mainSocket.emit("start?", newGame.room);
+		socketEmit(mainSocket,"start?", newGame.room);
 		setStart(true);
 	};
 
@@ -265,7 +266,7 @@ const Tetris = (props) => {
 
 	useInterval(
 		(mainSocket, addRow, updatePlayerPos) => {
-			mainSocket.on(
+			socketOn( mainSocket,
 				"addRow",
 				() => {
 					addRow(stage, setStage);

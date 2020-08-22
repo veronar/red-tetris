@@ -5,7 +5,7 @@ import { usePlayer } from "../client/hooks/usePlayer";
 import { useStage } from "../client/hooks/useStage";
 import { useInterval } from "../client/hooks/useInterval";
 import { useGameStatus } from "../client/hooks/useGameStatus";
-import { mainSocket } from "../client/helpers/socket";
+import { mainSocket } from "../client/middleware/socket";
 
 describe("Testing Tetris hooks", () => {
 	const clearStage = Array.from(Array(gameHelpers.STAGE_HEIGHT), () =>

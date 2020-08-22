@@ -12,3 +12,13 @@ export const userSocket = (room) => {
     } else resolve(mainSocket);
   });
 };
+
+export const socketOn = (socket,event, cb) =>{
+    socket.on(event, cb)
+}
+export const socketOff = (socket,event) =>{
+    socket.off(event)
+}
+export const socketEmit = (socket,event, params = []) =>{
+    socket.emit(event, params)
+}

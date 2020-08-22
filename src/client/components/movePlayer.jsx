@@ -1,4 +1,5 @@
 import { checkCollision } from "../helpers/gameHelpers";
+import { socketEmit } from "../middleware/socket";
 
 export const movePlayer = (dir, updatePlayerPos, player, stage, setPlayer) => {
   if (!checkCollision(player, stage, { x: dir, y: 0 })) {
@@ -64,7 +65,7 @@ export const drop = (
     // Game Over
     if (player.pos.y < 1) {
       console.log("GAME OVER!");
-      mainSocket.emit("died", mainSocket.id);
+      socketEmit(mainSocket, "died", mainSocket.id);
       setGameOver(true);
       setDropTime(null);
       setStart(false);

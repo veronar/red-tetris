@@ -7,7 +7,7 @@ import Tetris from "../client/components/Tetris";
 
 import { act } from "react-dom/test-utils";
 import * as move from "../client/components/movePlayer";
-import * as socketHelper from "../client/helpers/socket";
+import * as socketHelper from "../client/middleware/socket";
 
 const io = require("socket.io-client");
 const http = require("http");
