@@ -183,10 +183,12 @@ describe("tests tetris helpers", () => {
     });
     const mockSetLevel = jest.fn();
     const mockSetDropTime = jest.fn();
+    const mockSetStart = jest.fn();
+    
     move.drop(
       20,
       0,
-      { pos: { y: -1 } },
+      { pos: { y: 0 } },
       [],
       mockSetLevel,
       mockSetDropTime,
@@ -194,11 +196,45 @@ describe("tests tetris helpers", () => {
       mockSetGameOver,
       { emit: jest.fn() },
       jest.fn(),
-      jest.fn(),
+      mockSetStart,
       jest.fn()
     );
     expect(mockSetGameOver).toHaveBeenCalledWith(true);
     expect(mockSetDropTime).toHaveBeenCalledWith(null);
+    expect(mockSetStart).toHaveBeenCalled();
+    expect(mockUpdatePlayerPos).toHaveBeenCalledWith(
+      {
+        x: 0,
+        y: 0,
+        collided: true,
+      },
+      expect.any(Function)
+    );
+  });
+  it("tests drop level increase and drop player if collided and player pos > 1", () => {
+    const mockUpdatePlayerPos = jest.fn();
+    const mockSetGameOver = jest.fn();
+    jest.spyOn(gameHelpers, "checkCollision").mockImplementation(() => {
+      return true;
+    });
+    const mockSetLevel = jest.fn();
+    const mockSetDropTime = jest.fn();
+    const mockSetStart = jest.fn();
+    
+    move.drop(
+      20,
+      0,
+      { pos: { y: 2 } },
+      [],
+      mockSetLevel,
+      mockSetDropTime,
+      mockUpdatePlayerPos,
+      mockSetGameOver,
+      { emit: jest.fn() },
+      jest.fn(),
+      mockSetStart,
+      jest.fn()
+    );
     expect(mockUpdatePlayerPos).toHaveBeenCalledWith(
       {
         x: 0,

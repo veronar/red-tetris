@@ -27,3 +27,10 @@ export const StyledEnemyStage = styled.div`
 	max-width: 89px;
 	background: #111;
 `;
+
+StyledStage["propsToTest"] = [
+	{width: 0, height: 0}
+]
+StyledEnemyStage["propsToTest"] = [
+	{width: 0, height: 0}
+]
