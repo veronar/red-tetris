@@ -132,10 +132,10 @@ const Tetris = (props) => {
 						setHost(true);
 					setUser(newGame.users.find((e) => e.id === mainSocket.id));
 				});
-				socketOn(mainSocket, "startiguess", () => {
+				socketOn(mainSocket, "startiguess", (r) => {
 					socketEmit(mainSocket, "updatePlayer", stage);
 					if (newGame.users[0] && newGame.users[0].id === mainSocket.id)
-						socketEmit(mainSocket, "receive shapes", props.room);
+						socketEmit(mainSocket, "receive shapes", r);
 				});
 				socketOn(mainSocket, "receive shapes", (shapes1) => {
 					setShapes(shapes1);
