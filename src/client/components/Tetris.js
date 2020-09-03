@@ -126,20 +126,36 @@ const Tetris = (props) => {
 				socketOff(mainSocket, "startiguess");
 				socketOff(mainSocket, "deadUser");
 				socketOff(mainSocket, "setWinner");
+				/*
+				** updateUsers sets the array of users in the newGame object to the received players. This contains the player nickname, id, and board.
+				** The newGame.users array is used to display the enemy boards and nicknames on the side. It's also used to display how many are left.
+				*/
 				socketOn(mainSocket, "updateUsers", (t) => {
 					newGame.users = t;
 					if (newGame.users[0] && newGame.users[0].id === mainSocket.id)
 						setHost(true);
 					setUser(newGame.users.find((e) => e.id === mainSocket.id));
 				});
+				/*
+				** startiguess updates the users's board in the beginning and if the host (first user in the array) it generates shapes using the
+				** receive shapes emit function.
+				*/
 				socketOn(mainSocket, "startiguess", (r) => {
 					socketEmit(mainSocket, "updatePlayer", stage);
 					if (newGame.users[0] && newGame.users[0].id === mainSocket.id)
 						socketEmit(mainSocket, "receive shapes", r);
 				});
+				/*
+				** After shapes have been generated, receive shapes calls setShapes with the received shapes for everyone to use.
+				*/
 				socketOn(mainSocket, "receive shapes", (shapes1) => {
 					setShapes(shapes1);
 				});
+				/*
+				** deadUser removes the user from the newGame.left array. This array contains all the players still left in the game. After removing 
+				** the user, it checks to see if there is only 1 player left. If there is only 1 left, that player is the winner and we call the winner
+				** emit.
+				*/
 				socketOn(mainSocket, "deadUser", (id) => {
 					newGame.left.splice(
 						newGame.left.findIndex((e) => e.id === id),
@@ -151,6 +167,9 @@ const Tetris = (props) => {
 						socketEmit(mainSocket, "winner", newGame.left[0]);
 					}
 				});
+				/*
+				** setWinner just updates the text in one of the boxes to the winners name so everyone in the room can see who won the match.
+				*/
 				socketOn(mainSocket, "setWinner", (nickname) => {
 					setStart(false);
 					socketEmit(mainSocket, "updatePlayer", stage);
@@ -189,6 +208,9 @@ const Tetris = (props) => {
 		}, []);
 
 	const callStartGame = (mainSocket, setStart, newGame) => {
+		/*
+		** When the start button is clicked, start? is emitted which starts the game for everyone else
+		*/
 		socketEmit(mainSocket,"start?", newGame.room);
 		setStart(true);
 	};
@@ -266,6 +288,10 @@ const Tetris = (props) => {
 
 	useInterval(
 		(mainSocket, addRow, updatePlayerPos) => {
+			/*
+			** When another player clears a row, clearRow is called. clearRow then emits addRow to all the other player.
+			** addRow calls a function called addRow which moves all current blocks up by 1 and adds the solid layer at the bottom.
+			*/
 			socketOn( mainSocket,
 				"addRow",
 				() => {
